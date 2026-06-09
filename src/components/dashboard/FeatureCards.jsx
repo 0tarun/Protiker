@@ -34,7 +34,7 @@ const features = [
     desc: 'কাছের বিনামূল্যে আইনি সংস্থা, NGO ও সরকারি অফিস খুঁজুন।',
     action: 'কাছের সহায়তা দেখুন',
     badge: null,
-    route: null,
+    route: '/help-finder',
   },
 ];
 

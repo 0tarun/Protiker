@@ -94,10 +94,15 @@ const InputBar = forwardRef(function InputBar(_, ref) {
           </button>
         </div>
         {isRecording ? (
-          <div className="recording-label">🎙 {language === 'en' ? 'Recording...' : 'রেকর্ড করছি...'}</div>
+          <div className="recording-label" key="recording">
+            <span>🎙 {language === 'en' ? 'Listening in English...' : 'বাংলায় শুনছি (বলুন)...'}</span>
+          </div>
         ) : (
-          <div className="input-hint">
-            <kbd>Shift</kbd> + <kbd>Enter</kbd> {language === 'en' ? 'New line' : 'নতুন লাইন'} · Bengali or English
+          <div className="input-hint" key="hint">
+            <kbd>Shift</kbd>
+            <span> + </span>
+            <kbd>Enter</kbd>
+            <span> {language === 'en' ? 'New line' : 'নতুন লাইন'} · Bengali or English</span>
           </div>
         )}
       </div>

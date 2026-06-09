@@ -6,6 +6,10 @@ export function useVoiceInput(onTranscript) {
   const recRef = useRef(null);
 
   const toggleRecording = useCallback(() => {
+    const isEn = state.language === 'en';
+    const speechLang = isEn ? 'en-US' : 'bn-BD';
+    const mockText = isEn ? 'I have not received my salary for three months' : 'আমার তিন মাসের বেতন পাচ্ছি না';
+
     if (state.isRecording) {
       // Stop recording
       if (recRef.current) {
@@ -13,10 +17,6 @@ export function useVoiceInput(onTranscript) {
         recRef.current = null;
       }
       setRecording(false);
-      // Simulate transcription
-      setTimeout(() => {
-        onTranscript('আমার তিন মাসের বেতন পাচ্ছি না');
-      }, 800);
       return;
     }
 
@@ -24,20 +24,23 @@ export function useVoiceInput(onTranscript) {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SR) {
       const rec = new SR();
-      rec.lang = 'bn-BD';
+      rec.lang = speechLang;
       rec.continuous = false;
       rec.interimResults = false;
       rec.onresult = (e) => {
         const t = e.results[0][0].transcript;
-        onTranscript(t);
+        if (t) {
+          onTranscript(t);
+        }
         setRecording(false);
       };
-      rec.onerror = () => {
+      rec.onerror = (e) => {
+        console.error('Speech recognition error:', e.error);
         setRecording(false);
-        // Fallback: simulate transcript
-        setTimeout(() => onTranscript('আমার তিন মাসের বেতন পাচ্ছি না'), 800);
       };
-      rec.onend = () => setRecording(false);
+      rec.onend = () => {
+        setRecording(false);
+      };
       recRef.current = rec;
       rec.start();
       setRecording(true);
@@ -46,10 +49,10 @@ export function useVoiceInput(onTranscript) {
       setRecording(true);
       setTimeout(() => {
         setRecording(false);
-        onTranscript('আমার তিন মাসের বেতন পাচ্ছি না');
+        onTranscript(mockText);
       }, 2000);
     }
-  }, [state.isRecording, setRecording, onTranscript]);
+  }, [state.isRecording, state.language, setRecording, onTranscript]);
 
   return { isRecording: state.isRecording, toggleRecording };
 }

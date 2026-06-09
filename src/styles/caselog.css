@@ -1,0 +1,243 @@
+/* Case Log Styling System */
+
+/* Animations */
+@keyframes cardSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes timelineEventIn {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes lineFill {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
+
+@keyframes nodePulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(29, 158, 117, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(29, 158, 117, 0);
+  }
+}
+
+@keyframes alertPulse {
+  0%, 100% {
+    border-color: rgba(226, 75, 74, 0.25);
+  }
+  50% {
+    border-color: rgba(226, 75, 74, 0.60);
+  }
+}
+
+@keyframes noteFormIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes statusFlash {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+/* Layout Utilities */
+.cl-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #F8F9FA;
+}
+
+.cl-main {
+  flex: 1;
+  margin-left: 260px;
+  padding: 32px 40px;
+  min-width: 764px;
+}
+
+/* Search input focus styling */
+.cl-search-input-wrap input:focus {
+  border-color: #1D9E75 !important;
+  box-shadow: 0 0 0 3px rgba(29,158,117,0.15) !important;
+  outline: none;
+}
+
+/* Stat Card */
+.cl-stat-card {
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 16px;
+  padding: 16px 20px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+
+.cl-stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Severity Indicator colors */
+.severity-bar {
+  width: 4px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  border-radius: 16px 0 0 16px;
+}
+
+/* Cases Grid/Lists */
+.cl-cases-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cl-cases-grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 18px;
+}
+
+.cl-case-card {
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 16px;
+  padding: 20px 24px;
+  cursor: pointer;
+  transition: all 200ms ease;
+  position: relative;
+}
+
+.cl-case-card.list-mode {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.cl-case-card.list-mode:hover {
+  border-color: rgba(29, 158, 117, 0.25);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transform: translateX(4px);
+}
+
+.cl-case-card.grid-mode {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+}
+
+.cl-case-card.grid-mode:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border-color: rgba(29, 158, 117, 0.25);
+}
+
+/* Modal styling */
+.cl-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: overlayIn 200ms ease-out;
+}
+
+.cl-modal-card {
+  background: white;
+  border-radius: 20px;
+  width: 480px;
+  max-width: 90%;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  padding: 28px 32px;
+  animation: modalIn 300ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Forms input focus */
+.cl-form-group input:focus, 
+.cl-form-group select:focus, 
+.cl-form-group textarea:focus {
+  border-color: #1D9E75 !important;
+  box-shadow: 0 0 0 3px rgba(29, 158, 117, 0.15) !important;
+  outline: none;
+}
+
+/* Timeline vertical line decoration */
+.cl-timeline-line {
+  position: absolute;
+  left: 19px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, #1D9E75, rgba(29, 158, 117, 0.10));
+}
+
+/* Hover effects for action items */
+.action-btn-hover:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Detail page split layout */
+.cl-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 28px;
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .cl-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}

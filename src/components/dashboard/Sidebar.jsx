@@ -3,21 +3,23 @@
  * Contains brand, user card, nav items, and helpline card.
  * Accepts `activeItem` prop to highlight the current page's nav item.
  */
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, MessageCircle, FileText, MapPin,
   BookOpen, FolderOpen, Settings, HelpCircle, LogOut, Phone,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { getUserStats } from '../../services/chatService';
 import { mockStats } from '../../data/mockDashboard';
 
 const mainNav = [
   { icon: LayoutDashboard, label: 'ড্যাশবোর্ড', path: '/dashboard' },
   { icon: MessageCircle, label: 'AI পরামর্শ', badge: 'নতুন', path: '/chat' },
   { icon: FileText, label: 'আমার দলিলপত্র', path: '/documents' },
-  { icon: MapPin, label: 'সহায়তা খুঁজুন', path: null },
+  { icon: MapPin, label: 'সহায়তা খুঁজুন', path: '/help-finder' },
   { icon: BookOpen, label: 'অধিকার লাইব্রেরি', path: null },
-  { icon: FolderOpen, label: 'কেস লগ', path: null },
+  { icon: FolderOpen, label: 'কেস লগ', path: '/case-log' },
 ];
 
 const settingsNav = [
@@ -29,6 +31,25 @@ const settingsNav = [
 export default function Sidebar({ activeItem = 'ড্যাশবোর্ড' }) {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const [dbStats, setDbStats] = useState(null);
+
+  useEffect(() => {
+    async function loadStats() {
+      try {
+        const data = await getUserStats();
+        if (data && typeof data === 'object') {
+          setDbStats(data);
+        }
+      } catch (err) {
+        console.error('Failed to load sidebar stats', err);
+      }
+    }
+    if (user) {
+      loadStats();
+    }
+  }, [user]);
+
+  const activeStats = dbStats || mockStats;
 
   const handleNavClick = (item) => {
     if (item.isLogout) {
@@ -68,17 +89,17 @@ export default function Sidebar({ activeItem = 'ড্যাশবোর্ড' 
           </div>
           <div className="db-user-stats">
             <div className="db-user-stat">
-              <div className="db-user-stat-val">{mockStats.totalSessions}</div>
+              <div className="db-user-stat-val">{activeStats.totalSessions}</div>
               <div className="db-user-stat-label">কথোপকথন</div>
             </div>
             <div className="db-user-stat-div" />
             <div className="db-user-stat">
-              <div className="db-user-stat-val">{mockStats.totalDocuments}</div>
+              <div className="db-user-stat-val">{activeStats.totalDocuments}</div>
               <div className="db-user-stat-label">দলিল</div>
             </div>
             <div className="db-user-stat-div" />
             <div className="db-user-stat">
-              <div className="db-user-stat-val">{mockStats.savedCases}</div>
+              <div className="db-user-stat-val">{activeStats.savedCases}</div>
               <div className="db-user-stat-label">কেস লগ</div>
             </div>
           </div>

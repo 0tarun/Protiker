@@ -14,7 +14,7 @@ import documentService from '../services/documentService';
 import '../styles/documents.css';
 
 export default function DocumentFormPage() {
-  const { templateSlug } = useParams();
+  const { templateSlug, id } = useParams();
   const navigate = useNavigate();
 
   const [template, setTemplate] = useState(null);
@@ -29,27 +29,43 @@ export default function DocumentFormPage() {
   const [stepKey, setStepKey] = useState(0);
   const [newDocId, setNewDocId] = useState(null);
 
-  /* Fetch template details */
+  /* Fetch template or document details */
   useEffect(() => {
-    async function loadTemplate() {
+    async function loadData() {
       try {
-        const res = await documentService.getTemplateDetails(templateSlug);
-        if (res.success && res.data) {
-          setTemplate(res.data);
-          setFields(res.data.fields || []);
-        } else {
-          // fallback or handle error
-          navigate('/documents/new');
+        if (id) {
+          const docRes = await documentService.getDocumentDetails(id);
+          if (docRes.success && docRes.data) {
+             const docData = docRes.data;
+             setFormValues(docData.fieldValues || {});
+             const tmplRes = await documentService.getTemplateDetails(docData.templateSlug);
+             if (tmplRes.success && tmplRes.data) {
+               setTemplate(tmplRes.data);
+               setFields(tmplRes.data.fields || []);
+             } else {
+               navigate('/documents');
+             }
+          } else {
+             navigate('/documents');
+          }
+        } else if (templateSlug) {
+          const res = await documentService.getTemplateDetails(templateSlug);
+          if (res.success && res.data) {
+            setTemplate(res.data);
+            setFields(res.data.fields || []);
+          } else {
+            navigate('/documents/new');
+          }
         }
       } catch (e) {
-        console.error('Failed to fetch template details', e);
-        navigate('/documents/new');
+        console.error('Failed to load document/template details', e);
+        navigate('/documents');
       } finally {
         setLoading(false);
       }
     }
-    loadTemplate();
-  }, [templateSlug, navigate]);
+    loadData();
+  }, [templateSlug, id, navigate]);
 
   /* Group fields by step */
   const steps = useMemo(() => {
@@ -81,14 +97,14 @@ export default function DocumentFormPage() {
     }
   }, [currentStep]);
 
-  const handleGenerate = useCallback(async () => {
+  const handleSubmit = useCallback(async (isDraft = false) => {
     setSubmitting(true);
     try {
       const sessionIdStr = localStorage.getItem('protiker_chat_session');
       const payload = {
-        templateSlug: templateSlug,
+        templateSlug: template?.slug || templateSlug,
         fieldValues: formValues,
-        saveAsDraft: false,
+        saveAsDraft: isDraft,
         generationMethod: sessionIdStr ? 'CHAT_LINKED' : 'STANDALONE',
         language: 'BN'
       };
@@ -97,18 +113,28 @@ export default function DocumentFormPage() {
          payload.chatSessionId = parseInt(sessionIdStr, 10);
       }
 
-      const res = await documentService.createDocument(payload);
+      let res;
+      if (id) {
+        res = await documentService.updateDocument(id, payload);
+      } else {
+        res = await documentService.createDocument(payload);
+      }
+      
       if (res.success && res.data) {
-        setNewDocId(res.data.id);
-        setShowSuccess(true);
+        if (isDraft) {
+          navigate('/documents');
+        } else {
+          setNewDocId(res.data.id);
+          setShowSuccess(true);
+        }
       }
     } catch (e) {
-      console.error('Failed to create document', e);
-      alert(e?.response?.data?.message || 'দলিল তৈরি করতে সমস্যা হয়েছে। অনুগ্রহ করে সব তথ্য সঠিকভাবে দিন।');
+      console.error('Failed to save document', e);
+      alert(e?.response?.data?.message || 'দলিল সেভ করতে সমস্যা হয়েছে। অনুগ্রহ করে সব তথ্য সঠিকভাবে দিন।');
     } finally {
       setSubmitting(false);
     }
-  }, [formValues, templateSlug]);
+  }, [formValues, templateSlug, id, template, navigate]);
 
   /* Progress */
   const filledCount = fields.filter((f) => formValues[f.fieldKey]?.trim()).length;
@@ -246,19 +272,29 @@ export default function DocumentFormPage() {
             </button>
           )}
           {isLastStep ? (
-            <button className="doc-btn-step doc-btn-generate" onClick={handleGenerate} id="doc-generate-btn" disabled={submitting}>
-              {submitting ? (
-                <>
-                  <Loader2 className="animate-spin" size={16} />
-                  <span>তৈরি হচ্ছে...</span>
-                </>
-              ) : (
-                <>
-                  <FileText size={16} />
-                  <span>দলিল তৈরি করুন</span>
-                </>
-              )}
-            </button>
+            <div style={{ display: 'flex', gap: '12px', marginLeft: 'auto' }}>
+              <button 
+                className="doc-btn-cancel" 
+                onClick={() => handleSubmit(true)} 
+                disabled={submitting}
+                style={{ padding: '10px 20px', borderRadius: '12px', fontSize: '14px', height: '44px', display: 'flex', alignItems: 'center' }}
+              >
+                খসড়া সেভ করুন
+              </button>
+              <button className="doc-btn-step doc-btn-generate" onClick={() => handleSubmit(false)} id="doc-generate-btn" disabled={submitting}>
+                {submitting ? (
+                  <>
+                    <Loader2 className="animate-spin" size={16} />
+                    <span>তৈরি হচ্ছে...</span>
+                  </>
+                ) : (
+                  <>
+                    <FileText size={16} />
+                    <span>দলিল তৈরি করুন</span>
+                  </>
+                )}
+              </button>
+            </div>
           ) : (
             <button className="doc-btn-step doc-btn-step-next" onClick={goNext}>
               <span>পরবর্তী</span> <ChevronRight size={16} />

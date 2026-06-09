@@ -61,6 +61,16 @@ export const saveSession = async (sessionId) => {
 }
 
 /**
+ * Get all messages for a specific chat session.
+ * @param {string|number} sessionId
+ * @returns {Promise<Array>}
+ */
+export const getSessionMessages = async (sessionId) => {
+  const data = await api.get(`/chat/session/${sessionId}/messages`);
+  return data;
+}
+
+/**
  * Download the PDF summary of a session.
  * Returns a Blob for download.
  * @param {string} sessionId
@@ -72,4 +82,22 @@ export const downloadPdf = async (sessionId) => {
     { responseType: 'blob' }
   )
   return response
+}
+
+/**
+ * Get all chat sessions of the logged-in user.
+ * @returns {Promise<Array>}
+ */
+export const getUserSessions = async () => {
+  const data = await api.get('/chat/sessions');
+  return data;
+}
+
+/**
+ * Get chat and case statistics for the logged-in user.
+ * @returns {Promise<{totalSessions: number, totalDocuments: number, savedCases: number, daysActive: number}>}
+ */
+export const getUserStats = async () => {
+  const data = await api.get('/chat/stats');
+  return data;
 }

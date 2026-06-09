@@ -1,5 +1,6 @@
-import { createContext, useContext, useReducer, useCallback, useState, useRef } from 'react';
-import { sendMessage as apiSend, createSession as apiCreateSession, downloadPdf as apiDownloadPdf } from '../services/chatService';
+import { createContext, useContext, useReducer, useCallback, useState, useRef, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { sendMessage as apiSend, createSession as apiCreateSession, downloadPdf as apiDownloadPdf, getSessionMessages } from '../services/chatService';
 
 const ChatContext = createContext(null);
 
@@ -39,6 +40,8 @@ function reducer(state, action) {
       return { ...state, language: action.payload };
     case 'SET_PDF_LOADING':
       return { ...state, pdfLoading: action.payload };
+    case 'SET_MESSAGES':
+      return { ...state, messages: action.payload };
     case 'RESET':
       return { ...initial };
     default:
@@ -50,6 +53,42 @@ export function ChatProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initial);
   const [streamedText, setStreamedText] = useState({});
   const streamRef = useRef(null);
+
+  const params = useParams();
+  const wildcard = params['*'];
+
+  useEffect(() => {
+    if (wildcard && wildcard.trim() !== '') {
+      const parsedSessionId = parseInt(wildcard, 10);
+      if (!isNaN(parsedSessionId)) {
+        dispatch({ type: 'SET_SESSION_ID', payload: parsedSessionId });
+        
+        async function fetchHistory() {
+          dispatch({ type: 'SET_LOADING', payload: true });
+          try {
+            const history = await getSessionMessages(parsedSessionId);
+            if (Array.isArray(history)) {
+              const formattedHistory = history.map((m) => ({
+                id: m.messageId,
+                sender: m.sender,
+                content: m.content,
+                messageType: m.messageType || 'clarification',
+                structuredJson: m.structuredJson || null,
+                timestamp: new Date(m.timestamp),
+                isStreaming: false,
+              }));
+              dispatch({ type: 'SET_MESSAGES', payload: formattedHistory });
+            }
+          } catch (err) {
+            console.error('Failed to fetch session history', err);
+          } finally {
+            dispatch({ type: 'SET_LOADING', payload: false });
+          }
+        }
+        fetchHistory();
+      }
+    }
+  }, [wildcard]);
 
   const sendMessage = useCallback(async (text, inputMode = 'text') => {
     if (!text.trim()) return;
@@ -76,7 +115,7 @@ export function ChatProvider({ children }) {
       timestamp: new Date(),
       isStreaming: false,
     };
-    
+
     dispatch({ type: 'ADD_USER_MSG', payload: userMsg });
     // Fix: We need to update sessionId in state manually if we just created it
     if (!state.sessionId) {

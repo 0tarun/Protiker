@@ -246,12 +246,21 @@ export default function DocumentsPage() {
                         <button className="doc-card-dropdown-item" onClick={(e) => handleDownload(doc.id, e)}>
                           <Download size={14} /> ডাউনলোড করুন
                         </button>
-                        <button
-                          className="doc-card-dropdown-item"
-                          onClick={() => navigate(`/documents/${doc.id}`)}
-                        >
-                          <Eye size={14} /> দেখুন
-                        </button>
+                        {doc.status === 'draft' ? (
+                          <button
+                            className="doc-card-dropdown-item"
+                            onClick={() => navigate(`/documents/edit/${doc.id}`)}
+                          >
+                            <Edit size={14} /> এডিট করুন
+                          </button>
+                        ) : (
+                          <button
+                            className="doc-card-dropdown-item"
+                            onClick={() => navigate(`/documents/${doc.id}`)}
+                          >
+                            <Eye size={14} /> দেখুন
+                          </button>
+                        )}
                         <button className="doc-card-dropdown-item">
                           <Share2 size={14} /> শেয়ার করুন
                         </button>
@@ -288,10 +297,10 @@ export default function DocumentsPage() {
                       </button>
                       <button
                         className="doc-card-view-btn"
-                        onClick={() => navigate(`/documents/${doc.id}`)}
+                        onClick={() => navigate(doc.status === 'draft' ? `/documents/edit/${doc.id}` : `/documents/${doc.id}`)}
                         id={`doc-view-${doc.id}`}
                       >
-                        <Eye size={14} />
+                        {doc.status === 'draft' ? <Edit size={14} /> : <Eye size={14} />}
                       </button>
                     </div>
                   </div>

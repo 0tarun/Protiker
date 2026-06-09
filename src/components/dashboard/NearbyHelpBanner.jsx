@@ -3,8 +3,11 @@
  * Animated with bannerIn on mount (delayed).
  */
 import { MapPin } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function NearbyHelpBanner() {
+  const navigate = useNavigate();
+
   return (
     <div className="db-banner">
       <div className="db-banner-circle" />
@@ -22,7 +25,7 @@ export default function NearbyHelpBanner() {
           <span className="db-banner-org">ASK</span>
         </div>
       </div>
-      <button className="db-banner-btn">
+      <button className="db-banner-btn" onClick={() => navigate('/help-finder')}>
         <MapPin size={16} /> ম্যাপে দেখুন
       </button>
     </div>

@@ -73,6 +73,17 @@ const documentService = {
   },
 
   /**
+   * Update an existing document
+   * @param {number} id - Document ID
+   * @param {Object} payload - Same as createDocument payload
+   * @returns {Promise<Object>} The updated document response
+   */
+  updateDocument: async (id, payload) => {
+    const response = await api.put(`/documents/${id}`, payload);
+    return response;
+  },
+
+  /**
    * Update a document's status
    * @param {number} id - Document ID
    * @param {string} status - New status

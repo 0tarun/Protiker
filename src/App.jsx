@@ -15,6 +15,11 @@ import DocumentsPage from './pages/DocumentsPage';
 import NewDocumentPage from './pages/NewDocumentPage';
 import DocumentFormPage from './pages/DocumentFormPage';
 import DocumentDetailPage from './pages/DocumentDetailPage';
+import HelpFinderPage from './pages/HelpFinderPage';
+import CenterDetailPage from './pages/CenterDetailPage';
+import CaseLogPage from './pages/CaseLogPage';
+import CaseDetailPage from './pages/CaseDetailPage';
+import { CaseLogProvider } from './context/CaseLogContext';
 
 function ChatApp() {
   const inputRef = useRef(null);
@@ -42,8 +47,9 @@ export default function App() {
           because it uses useNavigate internally.
         */}
         <AuthProvider>
-          <GlobalErrorToast />
-          <Routes>
+          <CaseLogProvider>
+            <GlobalErrorToast />
+            <Routes>
           {/* ── ROOT → CHAT ── */}
           <Route path="/" element={<Navigate to="/chat" replace />} />
 
@@ -104,6 +110,14 @@ export default function App() {
             }
           />
           <Route
+            path="/documents/edit/:id"
+            element={
+              <ProtectedRoute>
+                <DocumentFormPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/documents/:id"
             element={
               <ProtectedRoute>
@@ -112,9 +126,45 @@ export default function App() {
             }
           />
 
+          {/* Feature 3 — Legal Help Finder */}
+          <Route
+            path="/help-finder"
+            element={
+              <ProtectedRoute>
+                <HelpFinderPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/help-finder/:centerId"
+            element={
+              <ProtectedRoute>
+                <CenterDetailPage />
+              </ProtectedRoute>
+            }
+          />
+          {/* Feature 4 — Case Log */}
+          <Route
+            path="/case-log"
+            element={
+              <ProtectedRoute>
+                <CaseLogPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/case-log/:caseId"
+            element={
+              <ProtectedRoute>
+                <CaseDetailPage />
+              </ProtectedRoute>
+            }
+          />
+
           {/* ── 404 FALLBACK ── */}
           <Route path="*" element={<Navigate to="/chat" replace />} />
         </Routes>
+          </CaseLogProvider>
         </AuthProvider>
       </BrowserRouter>
     </ErrorBoundary>

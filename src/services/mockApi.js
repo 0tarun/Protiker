@@ -78,3 +78,38 @@ export function getResponseForQuery(query) {
     return mockResponses['জমি বিরোধ'];
   return mockResponses.default;
 }
+messageId: "mock-" + Date.now(),
+  content: selectedMock.content || "ঠিক আছে, আমি এখন আপনার সম্পূর্ণ আইনি পরামর্শ তৈরি করছি...",
+    messageType: "structured",
+      structuredJson: selectedMock.structuredJson,
+        sender: "proti",
+          timestamp: new Date().toISOString()
+    };
+  }
+
+// First 2 messages for non-urgent categories -> clarification
+if (messageCount <= 2) {
+  const questions = [
+    "কত মাস ধরে এই সমস্যা?",
+    "আপনার কাছে কি কোনো প্রমাণ বা কাগজপত্র আছে?"
+  ];
+  return {
+    messageId: "mock-" + Date.now(),
+    content: questions[messageCount - 1] || questions[0],
+    messageType: "clarification",
+    structuredJson: null,
+    sender: "proti",
+    timestamp: new Date().toISOString()
+  };
+}
+
+// 3rd message onwards -> structured response
+return {
+  messageId: "mock-" + Date.now(),
+  content: "ঠিক আছে, আমি এখন আপনার সম্পূর্ণ আইনি পরামর্শ তৈরি করছি...",
+  messageType: "structured",
+  structuredJson: selectedMock.structuredJson,
+  sender: "proti",
+  timestamp: new Date().toISOString()
+};
+};
