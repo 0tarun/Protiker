@@ -87,6 +87,7 @@ export const AuthProvider = ({ children }) => {
         const response = await authService.getCurrentUser()
         const user = response?.data || response
 
+        storage.saveAuth(jwt, user)
         dispatch({ type: 'AUTH_SUCCESS', payload: user })
       } catch (error) {
         /* JWT invalid or expired — clear silently */

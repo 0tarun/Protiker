@@ -9,13 +9,13 @@ export default function CenterTypeIcon({ type, size = 18 }) {
     government_office: { icon: Building2, bg: '#EAF3DE', color: '#639922' },
     law_chamber: { icon: Briefcase, bg: '#F3E8FF', color: '#7C3AED' }
   };
-  
+
   const config = map[type] || map.ngo;
   const Icon = config.icon;
 
   return (
     <div style={{
-      width: 40, height: 40, borderRadius: 12, 
+      width: 44, height: 44, borderRadius: 12,
       background: config.bg, color: config.color,
       display: 'flex', alignItems: 'center', justifyContent: 'center'
     }}>

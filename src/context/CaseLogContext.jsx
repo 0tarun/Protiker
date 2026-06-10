@@ -92,6 +92,28 @@ function caseLogReducer(state, action) {
       return { ...state, cases: updatedCases, selectedCase: selected };
     }
 
+    case 'LINK_DOCUMENT_TO_CASE': {
+      const { caseId, document, event } = action.payload;
+      const updatedCases = state.cases.map(c => {
+        if (c.id === caseId) {
+          const currentDocs = c.documents || [];
+          const updatedDocs = currentDocs.some(d => d.id === document.id)
+            ? currentDocs
+            : [...currentDocs, document];
+          return {
+            ...c,
+            documents: updatedDocs,
+            timeline: [event, ...c.timeline]
+          };
+        }
+        return c;
+      });
+      const selected = state.selectedCase?.id === caseId 
+        ? updatedCases.find(c => c.id === caseId) 
+        : state.selectedCase;
+      return { ...state, cases: updatedCases, selectedCase: selected };
+    }
+
     case 'ADD_NOTE': {
       const { caseId, noteText } = action.payload;
       const noteEvent = {
@@ -192,6 +214,52 @@ function caseLogReducer(state, action) {
       return { ...state, cases: updatedCases, selectedCase: selected };
     }
 
+    case 'ADD_ATTACHMENT': {
+      const { caseId, attachment } = action.payload;
+      const updatedCases = state.cases.map(c => {
+        if (c.id === caseId) {
+          const currentAttachments = c.attachments || [];
+          const updatedAttachments = [...currentAttachments, attachment];
+          const uploadEvent = {
+            id: `evt-${Date.now()}`,
+            type: 'document_created',
+            title: `ফাইল যুক্ত করা হয়েছে: ${attachment.name}`,
+            description: `${attachment.name} (${(attachment.size / 1024).toFixed(1)} KB) ফাইলটি সংযুক্ত প্রমাণপত্র হিসেবে আপলোড করা হয়েছে।`,
+            createdAt: new Date().toISOString()
+          };
+          return {
+            ...c,
+            attachments: updatedAttachments,
+            timeline: [uploadEvent, ...c.timeline]
+          };
+        }
+        return c;
+      });
+      const selected = state.selectedCase?.id === caseId 
+        ? updatedCases.find(c => c.id === caseId) 
+        : state.selectedCase;
+      return { ...state, cases: updatedCases, selectedCase: selected };
+    }
+
+    case 'DELETE_ATTACHMENT': {
+      const { caseId, attachmentId } = action.payload;
+      const updatedCases = state.cases.map(c => {
+        if (c.id === caseId) {
+          const currentAttachments = c.attachments || [];
+          const updatedAttachments = currentAttachments.filter(a => a.id !== attachmentId);
+          return {
+            ...c,
+            attachments: updatedAttachments
+          };
+        }
+        return c;
+      });
+      const selected = state.selectedCase?.id === caseId 
+        ? updatedCases.find(c => c.id === caseId) 
+        : state.selectedCase;
+      return { ...state, cases: updatedCases, selectedCase: selected };
+    }
+
     case 'APPLY_FILTERS': {
       let result = [...state.cases];
 
@@ -253,10 +321,27 @@ function getStatusLabel(status) {
 export function CaseLogProvider({ children }) {
   const [state, dispatch] = useReducer(caseLogReducer, initialState);
 
-  // Initialize
+  // Initialize from localStorage or fallback to mockCases
   useEffect(() => {
+    const storedCases = localStorage.getItem('protiker_cases');
+    if (storedCases) {
+      try {
+        const parsed = JSON.parse(storedCases);
+        dispatch({ type: 'SET_INITIAL_DATA', payload: parsed });
+        return;
+      } catch (e) {
+        console.error('Failed to parse protiker_cases from localStorage', e);
+      }
+    }
     dispatch({ type: 'SET_INITIAL_DATA', payload: mockCases });
   }, []);
+
+  // Persist cases to localStorage when updated
+  useEffect(() => {
+    if (!state.isLoading) {
+      localStorage.setItem('protiker_cases', JSON.stringify(state.cases));
+    }
+  }, [state.cases, state.isLoading]);
 
   // Sync to re-apply filters
   useEffect(() => {
@@ -323,17 +408,24 @@ export function CaseLogProvider({ children }) {
           documentId: newDoc.id
         };
         
+        const docObject = {
+          id: newDoc.id,
+          name: newDoc.name,
+          status: 'generated',
+          format: 'pdf',
+          iconBg: '#E6F1FB',
+          iconColor: '#378ADD'
+        };
+
         dispatch({
-          type: 'ADD_TIMELINE_EVENT',
+          type: 'LINK_DOCUMENT_TO_CASE',
           payload: {
             caseId: activeContext.caseId,
+            document: docObject,
             event: docEvent
           }
         });
         
-        // Also link the document in case's document list
-        // For simplicity, we also handle it by modifying state:
-        // We'll let components append or handle it
         localStorage.removeItem('protiker_new_doc');
       } catch(e) {
         console.error(e);

@@ -167,7 +167,11 @@ export default function NewDocumentPage() {
               </button>
               <button
                 className="doc-btn-proceed"
-                onClick={() => navigate(`/documents/create/${selectedTemplate.slug}`)}
+                onClick={() => {
+                  const searchParams = new URLSearchParams(window.location.search);
+                  const caseId = searchParams.get('caseId');
+                  navigate(`/documents/create/${selectedTemplate.slug}${caseId ? `?caseId=${caseId}` : ''}`);
+                }}
                 id="doc-proceed-btn"
               >
                 এই দলিল তৈরি করুন <ArrowRight size={16} />

@@ -18,7 +18,7 @@ export default function CenterCard({ center, index, isSelected, onClick }) {
   };
 
   return (
-    <div 
+    <div
       onClick={onClick}
       style={{
         background: 'white',
@@ -74,7 +74,7 @@ export default function CenterCard({ center, index, isSelected, onClick }) {
       {/* DISTANCE + LOCATION */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginTop: 10 }}>
         {center.distanceKm && <DistanceBadge distanceKm={center.distanceKm} />}
-        
+
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           <Building size={12} color="#888780" />
           <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, color: '#888780' }}>
@@ -152,20 +152,17 @@ export default function CenterCard({ center, index, isSelected, onClick }) {
         </div>
       </div>
 
+      {/* DIVIDER */}
+      <div className="hf-card-divider" />
+
       {/* CONTACT QUICK BUTTONS */}
-      <div style={{ display: 'flex', gap: 8, marginTop: 12, alignItems: 'center' }}>
+      <div className="hf-card-bottom">
         <ContactButton contact={primaryContact} />
         <ContactButton contact={whatsappContact} />
         
         <button 
           onClick={handleNavigate}
-          className="map-nav-btn"
-          style={{
-            background: 'white', border: '1px solid rgba(0,0,0,0.10)',
-            borderRadius: 10, padding: '8px 12px', width: 40, height: 36,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', transition: 'all 0.2s'
-          }}
+          className="hf-map-btn"
         >
           <MapPin size={15} color="#4A4845" className="nav-icon" />
         </button>
@@ -175,12 +172,7 @@ export default function CenterCard({ center, index, isSelected, onClick }) {
             e.stopPropagation();
             navigate(`/help-finder/${center.id}`);
           }}
-          style={{
-            background: '#E1F5EE', color: '#0F6E56', border: 'none',
-            borderRadius: 10, padding: '8px 16px', fontFamily: "'Hind Siliguri', sans-serif",
-            fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex',
-            alignItems: 'center', gap: 4, marginLeft: 'auto', height: 36
-          }}
+          className="hf-view-detail-btn"
         >
           বিস্তারিত দেখুন
         </button>

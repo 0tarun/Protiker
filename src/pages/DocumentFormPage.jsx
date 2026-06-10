@@ -29,6 +29,27 @@ export default function DocumentFormPage() {
   const [stepKey, setStepKey] = useState(0);
   const [newDocId, setNewDocId] = useState(null);
 
+  /* Reinforce case context from URL search params */
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const urlCaseId = searchParams.get('caseId');
+    if (urlCaseId) {
+      const existingContextStr = localStorage.getItem('protiker_case_context');
+      if (existingContextStr) {
+        try {
+          const parsed = JSON.parse(existingContextStr);
+          if (parsed.caseId !== urlCaseId) {
+            localStorage.setItem('protiker_case_context', JSON.stringify({ caseId: urlCaseId }));
+          }
+        } catch (e) {
+          localStorage.setItem('protiker_case_context', JSON.stringify({ caseId: urlCaseId }));
+        }
+      } else {
+        localStorage.setItem('protiker_case_context', JSON.stringify({ caseId: urlCaseId }));
+      }
+    }
+  }, []);
+
   /* Fetch template or document details */
   useEffect(() => {
     async function loadData() {
@@ -124,8 +145,31 @@ export default function DocumentFormPage() {
         if (isDraft) {
           navigate('/documents');
         } else {
+          localStorage.setItem('protiker_new_doc', JSON.stringify({
+            id: res.data.id,
+            name: template?.nameBn || 'আইনি দলিল'
+          }));
           setNewDocId(res.data.id);
           setShowSuccess(true);
+
+          // Auto-download generated document PDF
+          try {
+            const html2pdf = (await import('html2pdf.js')).default;
+            const element = document.createElement('div');
+            element.innerHTML = `<pre style="font-family: sans-serif; white-space: pre-wrap; font-size: 14px; padding: 40px; line-height: 1.6;">${res.data.generatedContent}</pre>`;
+            
+            const opt = {
+              margin:       10,
+              filename:     `protiker-document-${res.data.id}.pdf`,
+              image:        { type: 'jpeg', quality: 0.98 },
+              html2canvas:  { scale: 2 },
+              jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            await html2pdf().set(opt).from(element).save();
+          } catch (pdfErr) {
+            console.error('Auto download failed', pdfErr);
+          }
         }
       }
     } catch (e) {
@@ -345,13 +389,42 @@ export default function DocumentFormPage() {
             <div className="doc-modal-title">দলিল সফলভাবে তৈরি হয়েছে! ✅</div>
             <div className="doc-modal-sub">
               আপনার "{template.nameBn}" তৈরি হয়ে গেছে।
-              এখন ডাউনলোড করতে বা দেখতে নিচের বোতামে ক্লিক করুন।
+              নিচের বোতামগুলো ব্যবহার করে এটি ডাউনলোড করতে বা দেখতে পারেন।
             </div>
-            <div className="doc-modal-actions">
-              <button className="doc-btn-primary" onClick={() => navigate(`/documents/${newDocId}`)}>
-                <Eye size={16} /> দলিল দেখুন
-              </button>
-              <button className="doc-btn-cancel" onClick={() => navigate('/documents')}>
+            <div className="doc-modal-actions" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ display: 'flex', gap: '12px', width: '100%' }}>
+                <button className="doc-btn-primary" style={{ flex: 1 }} onClick={() => navigate(`/documents/${newDocId}`)}>
+                  <Eye size={16} /> দলিল দেখুন
+                </button>
+                <button 
+                  className="doc-btn-primary" 
+                  style={{ flex: 1, background: '#378ADD', borderColor: '#378ADD' }} 
+                  onClick={async () => {
+                    try {
+                      const detailRes = await documentService.getDocumentDetails(newDocId);
+                      if (detailRes.success && detailRes.data) {
+                        const html2pdf = (await import('html2pdf.js')).default;
+                        const element = document.createElement('div');
+                        element.innerHTML = `<pre style="font-family: sans-serif; white-space: pre-wrap; font-size: 14px; padding: 40px; line-height: 1.6;">${detailRes.data.generatedContent}</pre>`;
+                        const opt = {
+                          margin:       10,
+                          filename:     `protiker-document-${newDocId}.pdf`,
+                          image:        { type: 'jpeg', quality: 0.98 },
+                          html2canvas:  { scale: 2 },
+                          jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                        };
+                        await html2pdf().set(opt).from(element).save();
+                      }
+                    } catch (err) {
+                      console.error(err);
+                      alert('ডাউনলোড করতে সমস্যা হয়েছে।');
+                    }
+                  }}
+                >
+                  <Download size={16} /> ডাউনলোড করুন
+                </button>
+              </div>
+              <button className="doc-btn-cancel" style={{ width: '100%' }} onClick={() => navigate('/documents')}>
                 দলিল তালিকায় যান
               </button>
             </div>

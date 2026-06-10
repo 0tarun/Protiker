@@ -1381,3 +1381,111 @@
 .doc-step-animated {
   animation: docStepTransition 250ms ease-out;
 }
+
+/* ── Custom Deletion Confirmation Modal ── */
+.p-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(28, 27, 26, 0.45);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: pModalFadeIn 200ms ease-out;
+}
+
+.p-modal-box {
+  background: #ffffff;
+  border-radius: 16px;
+  width: 420px;
+  max-width: 90%;
+  padding: 24px;
+  box-shadow: 0 12px 32px rgba(28, 27, 26, 0.15);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  animation: pModalScaleUp 250ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.p-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.p-modal-icon-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(226, 75, 74, 0.1);
+  color: #E24B4A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.p-modal-title {
+  font-family: 'Hind Siliguri', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1C1B1A;
+}
+
+.p-modal-body {
+  font-family: 'Hind Siliguri', sans-serif;
+  font-size: 14px;
+  color: #55534F;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.p-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.p-modal-btn {
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-family: 'Hind Siliguri', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 150ms ease;
+}
+
+.p-modal-btn-cancel {
+  background: #F4F6F8;
+  color: #4A4845;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.p-modal-btn-cancel:hover {
+  background: #EAECEF;
+}
+
+.p-modal-btn-danger {
+  background: #E24B4A;
+  color: white;
+  box-shadow: 0 4px 12px rgba(226, 75, 74, 0.2);
+}
+
+.p-modal-btn-danger:hover {
+  background: #D13B3A;
+  box-shadow: 0 6px 16px rgba(226, 75, 74, 0.3);
+}
+
+@keyframes pModalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pModalScaleUp {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}

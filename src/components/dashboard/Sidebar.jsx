@@ -4,7 +4,7 @@
  * Accepts `activeItem` prop to highlight the current page's nav item.
  */
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, MessageCircle, FileText, MapPin,
   BookOpen, FolderOpen, Settings, HelpCircle, LogOut, Phone,
@@ -18,7 +18,7 @@ const mainNav = [
   { icon: MessageCircle, label: 'AI পরামর্শ', badge: 'নতুন', path: '/chat' },
   { icon: FileText, label: 'আমার দলিলপত্র', path: '/documents' },
   { icon: MapPin, label: 'সহায়তা খুঁজুন', path: '/help-finder' },
-  { icon: BookOpen, label: 'অধিকার লাইব্রেরি', path: null },
+  { icon: BookOpen, label: 'অধিকার লাইব্রেরি', path: '/library' },
   { icon: FolderOpen, label: 'কেস লগ', path: '/case-log' },
 ];
 
@@ -30,6 +30,7 @@ const settingsNav = [
 
 export default function Sidebar({ activeItem = 'ড্যাশবোর্ড' }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, logout } = useAuth();
   const [dbStats, setDbStats] = useState(null);
 
@@ -110,18 +111,25 @@ export default function Sidebar({ activeItem = 'ড্যাশবোর্ড' 
       <div className="db-nav-section">
         <div className="db-nav-label">প্রধান মেনু · Menu</div>
         <div className="db-nav-list">
-          {mainNav.map((item) => (
-            <div
-              key={item.label}
-              className={`db-nav-item${item.label === activeItem ? ' active' : ''}`}
-              onClick={() => handleNavClick(item)}
-              style={{ cursor: item.path ? 'pointer' : 'default' }}
-            >
-              <item.icon size={18} />
-              {item.label}
-              {item.badge && <span className="db-nav-badge">{item.badge}</span>}
-            </div>
-          ))}
+        {mainNav.map((item) => {
+            // Library is active on all /library/* routes
+            const isLibrary = item.label === 'অধিকার লাইব্রেরি';
+            const isActive = isLibrary
+              ? location.pathname.startsWith('/library')
+              : item.label === activeItem;
+            return (
+              <div
+                key={item.label}
+                className={`db-nav-item${isActive ? ' active' : ''}`}
+                onClick={() => handleNavClick(item)}
+                style={{ cursor: item.path ? 'pointer' : 'default' }}
+              >
+                <item.icon size={18} />
+                {item.label}
+                {item.badge && <span className="db-nav-badge">{item.badge}</span>}
+              </div>
+            );
+          })}
         </div>
       </div>
 

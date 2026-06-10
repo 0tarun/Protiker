@@ -20,6 +20,12 @@ import CenterDetailPage from './pages/CenterDetailPage';
 import CaseLogPage from './pages/CaseLogPage';
 import CaseDetailPage from './pages/CaseDetailPage';
 import { CaseLogProvider } from './context/CaseLogContext';
+import LibraryHomePage from './pages/LibraryHomePage';
+import CategoryPage from './pages/CategoryPage';
+import ArticlePage from './pages/ArticlePage';
+import LibrarySubmitPage from './pages/LibrarySubmitPage';
+import LibraryModerationPage from './pages/LibraryModerationPage';
+import NewCasePage from './pages/NewCasePage';
 
 function ChatApp() {
   const inputRef = useRef(null);
@@ -153,6 +159,14 @@ export default function App() {
             }
           />
           <Route
+            path="/case-log/new"
+            element={
+              <ProtectedRoute>
+                <NewCasePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/case-log/:caseId"
             element={
               <ProtectedRoute>
@@ -160,6 +174,27 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+
+          {/* Feature 5 — Rights Library */}
+          <Route path="/library" element={<LibraryHomePage />} />
+          <Route
+            path="/library/submit"
+            element={
+              <ProtectedRoute>
+                <LibrarySubmitPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/library/moderation"
+            element={
+              <ProtectedRoute>
+                <LibraryModerationPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/library/:categorySlug" element={<CategoryPage />} />
+          <Route path="/library/:categorySlug/:articleSlug" element={<ArticlePage />} />
 
           {/* ── 404 FALLBACK ── */}
           <Route path="*" element={<Navigate to="/chat" replace />} />

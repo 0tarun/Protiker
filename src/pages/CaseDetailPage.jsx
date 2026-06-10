@@ -7,7 +7,8 @@ import {
   FolderOpen, Send, Building2, CheckCircle, 
   MessageCircle, FilePlus, MapPin, Download, 
   Link as LinkIcon, Archive, Trash2, PenLine, 
-  FileText, Plus, X, Trash, RefreshCw
+  FileText, Plus, X, Trash, RefreshCw,
+  Paperclip, Image, Music, Video
 } from 'lucide-react';
 import ShareCaseModal from '../components/caseLog/ShareCaseModal';
 import '../styles/caselog.css';
@@ -170,6 +171,68 @@ export default function CaseDetailPage() {
     navigate('/chat');
   };
 
+  const handleFileUpload = (e) => {
+    const files = Array.from(e.target.files);
+    const MAX_SIZE = 1.5 * 1024 * 1024; // 1.5 MB limit
+    
+    const oversizedFiles = files.filter(f => f.size > MAX_SIZE);
+    if (oversizedFiles.length > 0) {
+      alert(`ব্রাউজারের ধারণক্ষমতার সীমাবদ্ধতার কারণে ১.৫ MB এর চেয়ে বড় ফাইল আপলোড করা যাবে না।\nনিম্নের ফাইলটি বড়:\n${oversizedFiles.map(f => `${f.name} (${(f.size / 1024 / 1024).toFixed(2)} MB)`).join('\n')}`);
+      e.target.value = '';
+      return;
+    }
+
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const newAttachment = {
+          id: `attach-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+          name: file.name,
+          size: file.size,
+          type: file.type || 'unknown',
+          dataUrl: reader.result,
+          uploadedAt: new Date().toISOString()
+        };
+        dispatch({
+          type: 'ADD_ATTACHMENT',
+          payload: {
+            caseId: cItem.id,
+            attachment: newAttachment
+          }
+        });
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Reset file input value so that the user can upload the same file again if they delete it
+    e.target.value = '';
+  };
+
+  const getFileIcon = (type, name = '') => {
+    const typeLower = type.toLowerCase();
+    const nameLower = name.toLowerCase();
+
+    if (typeLower.startsWith('image/') || /\.(jpg|jpeg|png|gif|webp|svg)$/.test(nameLower)) return Image;
+    if (typeLower.startsWith('audio/') || /\.(mp3|wav|ogg|m4a|flac)$/.test(nameLower)) return Music;
+    if (typeLower.startsWith('video/') || /\.(mp4|webm|ogg|avi|mov)$/.test(nameLower)) return Video;
+    
+    // Document types (PDF, Word, Text, Excel, PowerPoint)
+    if (
+      typeLower.includes('pdf') || 
+      typeLower.includes('document') || 
+      typeLower.includes('word') || 
+      typeLower.includes('text') || 
+      typeLower.includes('excel') || 
+      typeLower.includes('sheet') || 
+      typeLower.includes('msword') ||
+      /\.(pdf|doc|docx|txt|xls|xlsx|ppt|pptx|rtf|odt|csv)$/.test(nameLower)
+    ) {
+      return FileText;
+    }
+
+    return Paperclip;
+  };
+
   const getTimelineEventStyles = (type) => {
     const config = {
       chat_started: { icon: MessageCircle, color: '#1D9E75' },
@@ -180,18 +243,54 @@ export default function CaseDetailPage() {
       pdf_downloaded: { icon: Download, color: '#1D9E75' },
       deadline_set: { icon: Clock, color: '#E24B4A' }
     };
-    return config[type] || { icon: Activity, color: '#888780' };
+    return config[type] || { icon: Paperclip, color: '#888780' };
   };
 
   const getNextStepDescription = () => {
-    const descs = {
-      identified: "মালিককে লিখিত নোটিশ পাঠান। দলিল তৈরি করতে ক্লিক করুন।",
-      notice_sent: "মালিকের জবাবের জন্য অপেক্ষা করুন। ৭ কার্যদিবসের মধ্যে জবাব না পেলে শ্রম আদালতে যান।",
-      office_visited: "আদালতে আবেদনপত্র দাখিল করুন।",
-      legal_action: "আদালতের পরবর্তী তারিখ মনে রাখুন।",
-      resolved: "আপনার সমস্যা সমাধান হয়েছে! 🎉"
-    };
-    return descs[cItem.caseStatus] || '';
+    const category = cItem.category || '';
+    
+    if (cItem.caseStatus === 'identified') {
+      if (category === 'বাড়িভাড়া') {
+        return "মালিককে লিখিত নোটিশ পাঠান। দলিল তৈরি করতে ক্লিক করুন।";
+      } else if (category === 'শ্রম অধিকার') {
+        return "নিয়োগকর্তাকে লিখিত নোটিশ পাঠান। দলিল তৈরি করতে ক্লিক করুন।";
+      } else if (category === 'ভোক্তা অধিকার') {
+        return "বিক্রেতা বা সেবা প্রদানকারীকে লিখিত নোটিশ পাঠান। দলিল তৈরি করতে ক্লিক করুন।";
+      } else if (category === 'পারিবারিক সহিংসতা') {
+        return "সহায়তা সংস্থা বা থানায় অভিযোগ জানানোর জন্য প্রয়োজনীয় আবেদনপত্র তৈরি করতে ক্লিক করুন।";
+      } else {
+        return "সংশ্লিষ্ট পক্ষকে লিখিত নোটিশ পাঠান। দলিল তৈরি করতে ক্লিক করুন।";
+      }
+    }
+
+    if (cItem.caseStatus === 'notice_sent') {
+      if (category === 'বাড়িভাড়া') {
+        return "মালিকের জবাবের জন্য অপেক্ষা করুন। নির্দিষ্ট সময়ের মধ্যে সমাধান না হলে আইনি পদক্ষেপের প্রস্তুতি নিন।";
+      } else if (category === 'শ্রম অধিকার') {
+        return "নিয়োগকর্তার জবাবের জন্য অপেক্ষা করুন। ৭ কার্যদিবসের মধ্যে জবাব না পেলে শ্রম আদালতে বা দপ্তরে অভিযোগ করুন।";
+      } else if (category === 'ভোক্তা অধিকার') {
+        return "বিক্রেতার জবাবের জন্য অপেক্ষা করুন। সমাধান না হলে ভোক্তা অধিকার অধিদপ্তরে অভিযোগ করুন।";
+      } else {
+        return "অপর পক্ষের জবাবের জন্য অপেক্ষা করুন। নির্দিষ্ট সময়ের মধ্যে সমাধান না হলে পরবর্তী আইনি পদক্ষেপ নিন।";
+      }
+    }
+
+    if (cItem.caseStatus === 'office_visited') {
+      if (category === 'বাড়িভাড়া' || category === 'শ্রম অধিকার' || category === 'ভোক্তা অধিকার') {
+        return "আদালত বা সংশ্লিষ্ট অধিদপ্তরে আবেদনপত্র দাখিল করুন।";
+      }
+      return "সংশ্লিষ্ট অফিসে আবেদনপত্র দাখিল করুন বা পরবর্তী পদক্ষেপ নিন।";
+    }
+
+    if (cItem.caseStatus === 'legal_action') {
+      return "আইনি প্রক্রিয়ার পরবর্তী তারিখ বা শুনানির সময় মনে রাখুন এবং আইনজীবীর পরামর্শ নিন।";
+    }
+
+    if (cItem.caseStatus === 'resolved') {
+      return "আপনার সমস্যা সমাধান হয়েছে! 🎉";
+    }
+
+    return '';
   };
 
   // Get Deadline status
@@ -607,7 +706,15 @@ export default function CaseDetailPage() {
 
                 {/* Action 2 */}
                 <button
-                  onClick={() => navigate(`/documents/new?caseId=${cItem.id}`)}
+                  onClick={() => {
+                    localStorage.setItem('protiker_case_context', JSON.stringify({
+                      caseId: cItem.id,
+                      title: cItem.title,
+                      category: cItem.category,
+                      problem: cItem.problem
+                    }));
+                    navigate(`/documents/new?caseId=${cItem.id}`);
+                  }}
                   style={{
                     background: '#E6F1FB', color: '#185FA5', border: 'none',
                     borderRadius: 12, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12,
@@ -754,11 +861,99 @@ export default function CaseDetailPage() {
                     কোনো দলিল নেই
                   </div>
                   <button 
-                    onClick={() => navigate(`/documents/new?caseId=${cItem.id}`)}
+                    onClick={() => {
+                      localStorage.setItem('protiker_case_context', JSON.stringify({
+                        caseId: cItem.id,
+                        title: cItem.title,
+                        category: cItem.category,
+                        problem: cItem.problem
+                      }));
+                      navigate(`/documents/new?caseId=${cItem.id}`);
+                    }}
                     style={{ background: 'none', border: 'none', color: '#1D9E75', fontFamily: "'Hind Siliguri', sans-serif", fontSize: 12, fontWeight: 600, cursor: 'pointer', marginTop: 6 }}
                   >
                     + দলিল তৈরি করুন
                   </button>
+                </div>
+              )}
+            </div>
+
+            {/* EVIDENCE & FILE PORTAL CARD */}
+            <div className="cl-modal-card" style={{ width: '100%', padding: 20, animation: 'none' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                <h3 style={{ fontFamily: "'Hind Siliguri', sans-serif", fontSize: 15, fontWeight: 600, color: '#1C1B1A', margin: 0 }}>
+                  প্রমাণপত্র ও ফাইল পোর্টাল
+                </h3>
+                <label 
+                  style={{ fontFamily: "'Hind Siliguri', sans-serif", fontSize: 12, color: '#1D9E75', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}
+                >
+                  <Plus size={14} /> আপলোড
+                  <input 
+                    type="file" 
+                    multiple 
+                    onChange={handleFileUpload} 
+                    style={{ display: 'none' }} 
+                  />
+                </label>
+              </div>
+
+              {cItem.attachments && cItem.attachments.length > 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {cItem.attachments.map(file => {
+                    const FileIcon = getFileIcon(file.type, file.name);
+                    return (
+                      <div 
+                        key={file.id}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 12, background: '#F8F9FA',
+                          borderRadius: 10, padding: '10px 14px', border: '1px solid rgba(0,0,0,0.02)'
+                        }}
+                      >
+                        <div style={{
+                          width: 32, height: 32, borderRadius: '50%', background: '#F4F6F8',
+                          color: '#4A4845', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
+                        }}>
+                          <FileIcon size={16} />
+                        </div>
+                        <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                          <span style={{
+                            fontFamily: "'Hind Siliguri', sans-serif", fontSize: 13, fontWeight: 500, color: '#1C1B1A',
+                            textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden'
+                          }} title={file.name}>
+                            {file.name}
+                          </span>
+                          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 10, color: '#888780' }}>
+                            {(file.size / 1024).toFixed(1)} KB
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                          <a 
+                            href={file.dataUrl} 
+                            download={file.name}
+                            style={{ display: 'flex', alignItems: 'center', color: '#1D9E75' }}
+                          >
+                            <Download size={15} />
+                          </a>
+                          <button 
+                            onClick={() => {
+                              if (window.confirm('ফাইলটি মুছে ফেলতে চান?')) {
+                                dispatch({ type: 'DELETE_ATTACHMENT', payload: { caseId: cItem.id, attachmentId: file.id } });
+                              }
+                            }}
+                            style={{ background: 'none', border: 'none', color: '#E24B4A', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center' }}
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div style={{ textAlign: 'center', padding: '16px 0' }}>
+                  <div style={{ fontFamily: "'Hind Siliguri', sans-serif", fontSize: 13, color: '#888780' }}>
+                    কোনো ফাইল সংযুক্ত নেই (অডিও, ভিডিও, ছবি ইত্যাদি আপলোড করতে পারেন)
+                  </div>
                 </div>
               )}
             </div>

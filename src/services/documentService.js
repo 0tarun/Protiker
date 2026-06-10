@@ -104,6 +104,16 @@ const documentService = {
       responseType: 'blob'
     });
     return response;
+  },
+
+  /**
+   * Delete a document
+   * @param {number} id - Document ID
+   * @returns {Promise<Object>} Response object
+   */
+  deleteDocument: async (id) => {
+    const response = await api.delete(`/documents/${id}`);
+    return response;
   }
 };
 

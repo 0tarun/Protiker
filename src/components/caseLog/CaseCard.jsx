@@ -112,67 +112,68 @@ export default function CaseCard({ caseItem, index, viewMode, onShare }) {
       <div 
         onClick={handleCardClick}
         className="cl-case-card list-mode"
-        style={{ animation: `cardSlideIn 250ms ease-out ${index * 60}ms backwards` }}
+        style={{ animation: `clCardSlideIn 250ms ease-out ${index * 60}ms backwards` }}
       >
         {/* Severity left bar */}
         <div 
-          className="severity-bar" 
+          className="cl-list-severity-bar" 
           style={{ background: severityColors[caseItem.severity] || '#D1D5DB' }} 
         />
 
         {/* Case Category Icon */}
-        <div style={{
-          width: 48, height: 48, borderRadius: 14,
-          background: catStyle.bg, color: catStyle.color,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          flexShrink: 0
-        }}>
+        <div 
+          className="cl-list-icon-wrap"
+          style={{ background: catStyle.bg, color: catStyle.color }}
+        >
           <Scale size={22} />
         </div>
 
         {/* Info Area */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontFamily: "'Hind Siliguri', sans-serif", fontSize: 15, fontWeight: 600, color: '#1C1B1A' }}>
+        <div className="cl-list-info-area">
+          <div className="cl-list-top-row">
+            <span className="cl-list-title">
               {caseItem.title}
             </span>
-            <span style={{
-              background: statusCfg.bg, color: statusCfg.color,
-              borderRadius: 100, padding: '3px 12px',
-              fontFamily: "'Hind Siliguri', sans-serif", fontSize: 11, fontWeight: 500
-            }}>
+            <span 
+              className="cl-status-badge"
+              style={{ background: statusCfg.bg, color: statusCfg.color }}
+            >
               {statusCfg.text}
             </span>
           </div>
 
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center' }}>
-            <span style={{ background: '#F4F6F8', borderRadius: 100, padding: '2px 10px', fontFamily: "'Hind Siliguri', sans-serif", fontSize: 11, color: '#888780' }}>
-              {caseItem.category}
-            </span>
-            <span style={{ background: sevBadge.bg, color: sevBadge.color, borderRadius: 100, padding: '2px 10px', fontFamily: "'Hind Siliguri', sans-serif", fontSize: 11, fontWeight: 500 }}>
+          <div className="cl-list-tags-row">
+            <span className="cl-list-tag">{caseItem.category}</span>
+            <span 
+              className="cl-list-tag severity"
+              style={{ background: sevBadge.bg, color: sevBadge.color }}
+            >
               {sevBadge.text}
             </span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: "'Inter', sans-serif", fontSize: 12, color: '#888780' }}>
+            <div className="cl-list-date">
               <Calendar size={12} />
               <span>{formattedDate}</span>
             </div>
           </div>
 
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, marginTop: 4 }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: "'Inter', sans-serif", fontSize: 12, color: '#378ADD' }}>
+          <div className="cl-list-meta-stats">
+            <span className="cl-list-stat-item docs">
               <FileText size={12} />
               <span>{(caseItem.documents || []).length.toLocaleString('bn-BD')}টি দলিল</span>
             </span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: "'Inter', sans-serif", fontSize: 12, color: '#888780' }}>
+            <span className="cl-list-stat-item contacts">
               <Building2 size={12} />
               <span>{(caseItem.contacts || []).length.toLocaleString('bn-BD')}টি সংস্থা</span>
             </span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: "'Inter', sans-serif", fontSize: 12, color: '#888780' }}>
+            <span className="cl-list-stat-item events">
               <Activity size={12} />
               <span>{(caseItem.timeline || []).length.toLocaleString('bn-BD')}টি ঘটনা</span>
             </span>
             {deadlineInfo && (
-              <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: "'Hind Siliguri', sans-serif", fontSize: 12, color: deadlineInfo.color, fontWeight: deadlineInfo.weight }}>
+              <span 
+                className="cl-list-stat-item deadline"
+                style={{ color: deadlineInfo.color }}
+              >
                 <Clock size={12} />
                 <span>{deadlineInfo.text}</span>
               </span>
@@ -180,32 +181,28 @@ export default function CaseCard({ caseItem, index, viewMode, onShare }) {
           </div>
         </div>
 
-        {/* Right Arrow + Menu */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }} onClick={(e) => e.stopPropagation()}>
-          <div style={{ position: 'relative' }}>
+        {/* Actions Menu */}
+        <div className="cl-list-actions" onClick={(e) => e.stopPropagation()}>
+          <div className="cl-card-menu-container">
             <button 
               onClick={() => setShowMenu(!showMenu)}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888780', padding: 4 }}
+              className="cl-list-menu-btn"
             >
               <MoreVertical size={16} />
             </button>
             {showMenu && (
-              <div style={{
-                position: 'absolute', right: 0, top: '100%', background: 'white',
-                border: '1px solid rgba(0,0,0,0.08)', borderRadius: 10,
-                boxShadow: '0 4px 16px rgba(0,0,0,0.1)', zIndex: 50, padding: '4px 0', minWidth: 140
-              }}>
-                <button onClick={handleCardClick} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', border: 'none', background: 'none', cursor: 'pointer', fontFamily: "'Hind Siliguri', sans-serif", fontSize: 13, color: '#1C1B1A', textAlign: 'left' }}>
-                  <Eye size={14} color="#888780" /> বিস্তারিত দেখুন
+              <div className="cl-card-menu-dropdown list-pos">
+                <button onClick={handleCardClick} className="cl-dropdown-item">
+                  <Eye size={13} color="#888780" /> বিস্তারিত দেখুন
                 </button>
-                <button onClick={() => { onShare(caseItem); setShowMenu(false); }} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', border: 'none', background: 'none', cursor: 'pointer', fontFamily: "'Hind Siliguri', sans-serif", fontSize: 13, color: '#1C1B1A', textAlign: 'left' }}>
-                  <Share2 size={14} color="#888780" /> শেয়ার করুন
+                <button onClick={() => { onShare(caseItem); setShowMenu(false); }} className="cl-dropdown-item">
+                  <Share2 size={13} color="#888780" /> শেয়ার করুন
                 </button>
-                <button onClick={toggleStatus} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', border: 'none', background: 'none', cursor: 'pointer', fontFamily: "'Hind Siliguri', sans-serif", fontSize: 13, color: '#1C1B1A', textAlign: 'left' }}>
-                  <RefreshCw size={14} color="#888780" /> স্ট্যাটাস পরিবর্তন
+                <button onClick={toggleStatus} className="cl-dropdown-item">
+                  <RefreshCw size={13} color="#888780" /> স্ট্যাটাস পরিবর্তন
                 </button>
-                <button onClick={handleDelete} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', border: 'none', background: 'none', cursor: 'pointer', fontFamily: "'Hind Siliguri', sans-serif", fontSize: 13, color: '#E24B4A', textAlign: 'left' }}>
-                  <Trash2 size={14} color="#E24B4A" /> কেস মুছুন
+                <button onClick={handleDelete} className="cl-dropdown-item danger">
+                  <Trash2 size={13} color="#E24B4A" /> কেস মুছুন
                 </button>
               </div>
             )}
@@ -221,51 +218,52 @@ export default function CaseCard({ caseItem, index, viewMode, onShare }) {
     <div 
       onClick={handleCardClick}
       className="cl-case-card grid-mode"
-      style={{ animation: `cardSlideIn 250ms ease-out ${index * 60}ms backwards` }}
+      style={{ animation: `clCardSlideIn 350ms ease-out ${index * 60}ms both` }}
     >
       {/* Top severity band */}
-      <div style={{ height: 8, background: severityColors[caseItem.severity] || '#D1D5DB' }} />
+      <div 
+        className="cl-card-severity-band" 
+        style={{ background: severityColors[caseItem.severity] || '#D1D5DB' }} 
+      />
 
-      <div style={{ padding: 18, display: 'flex', flexDirection: 'column', flex: 1 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <div style={{
-            width: 40, height: 40, borderRadius: 10,
-            background: catStyle.bg, color: catStyle.color,
-            display: 'flex', alignItems: 'center', justifyContent: 'center'
-          }}>
+      <div className="cl-card-body">
+        <div className="cl-card-top">
+          <div 
+            className="cl-card-icon-wrap"
+            style={{ background: catStyle.bg, color: catStyle.color }}
+          >
             <Scale size={20} />
           </div>
-          <span style={{
-            background: statusCfg.bg, color: statusCfg.color,
-            borderRadius: 100, padding: '2px 10px',
-            fontFamily: "'Hind Siliguri', sans-serif", fontSize: 10, fontWeight: 500
-          }}>
+          <span 
+            className="cl-status-badge"
+            style={{ background: statusCfg.bg, color: statusCfg.color }}
+          >
             {statusCfg.text}
           </span>
         </div>
 
-        <h3 style={{ fontFamily: "'Hind Siliguri', sans-serif", fontSize: 15, fontWeight: 600, color: '#1C1B1A', margin: '12px 0 4px', lineHeight: 1.4, height: 42, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+        <h3 className="cl-card-title">
           {caseItem.title}
         </h3>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontFamily: "'Inter', sans-serif", fontSize: 11, color: '#888780' }}>
-          <span>{caseItem.category}</span>
-          <span>{formattedDate}</span>
+        <div className="cl-card-meta-row">
+          <span className="cl-card-category">{caseItem.category}</span>
+          <span className="cl-card-date">{formattedDate}</span>
         </div>
 
         {/* PROGRESS INDICATOR */}
-        <div style={{ marginTop: 14 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', position: 'relative', padding: '0 4px' }}>
+        <div className="cl-progress-track-wrap">
+          <div className="cl-progress-track">
             {/* Background line */}
-            <div style={{ position: 'absolute', top: 4, left: 10, right: 10, height: 2, background: '#E5E7EB', zIndex: 1 }} />
+            <div className="cl-progress-line-bg" />
             
             {/* Filled progress line segment */}
-            <div style={{
-              position: 'absolute', top: 4, left: 10,
-              width: `${(currentStatusIndex / (statusStages.length - 1)) * 100}%`,
-              height: 2, background: '#1D9E75', zIndex: 2,
-              animation: 'lineFill 600ms ease-out'
-            }} />
+            <div 
+              className="cl-progress-line-fill"
+              style={{
+                width: `${(currentStatusIndex / (statusStages.length - 1)) * 100}%`,
+              }}
+            />
 
             {statusStages.map((stage, idx) => {
               const completed = idx < currentStatusIndex;
@@ -273,17 +271,15 @@ export default function CaseCard({ caseItem, index, viewMode, onShare }) {
               return (
                 <div 
                   key={stage} 
+                  className={`cl-progress-node${isCurrent ? ' active-pulse' : ''}`}
                   style={{
-                    width: 8, height: 8, borderRadius: '50%',
                     background: completed ? '#1D9E75' : isCurrent ? severityColors[caseItem.severity] : '#D1D5DB',
-                    zIndex: 3,
-                    animation: isCurrent ? 'nodePulse 2s infinite' : 'none'
                   }}
                 />
               );
             })}
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, fontFamily: "'Hind Siliguri', sans-serif", fontSize: 9, color: '#888780' }}>
+          <div className="cl-progress-labels">
             <span>চিহ্নিত</span>
             <span>নোটিশ</span>
             <span>অফিস</span>
@@ -292,41 +288,39 @@ export default function CaseCard({ caseItem, index, viewMode, onShare }) {
           </div>
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 14, paddingTop: 12, borderTop: '1px solid rgba(0,0,0,0.05)' }}>
-          <div style={{ display: 'flex', gap: 10 }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 2, fontFamily: "'Inter', sans-serif", fontSize: 11, color: '#378ADD' }}>
-              <FileText size={11} />
+        <div className="cl-card-divider" />
+
+        <div className="cl-card-footer">
+          <div className="cl-card-footer-stats">
+            <span className="cl-card-stat-item docs">
+              <FileText size={12} />
               <span>{(caseItem.documents || []).length}</span>
             </span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 2, fontFamily: "'Inter', sans-serif", fontSize: 11, color: '#888780' }}>
-              <Building2 size={11} />
+            <span className="cl-card-stat-item contacts">
+              <Building2 size={12} />
               <span>{(caseItem.contacts || []).length}</span>
             </span>
           </div>
 
-          <div onClick={(e) => e.stopPropagation()} style={{ position: 'relative' }}>
+          <div onClick={(e) => e.stopPropagation()} className="cl-card-menu-container">
             <button 
               onClick={() => setShowMenu(!showMenu)}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888780', padding: 2 }}
+              className="cl-list-menu-btn"
             >
               <MoreVertical size={14} />
             </button>
             {showMenu && (
-              <div style={{
-                position: 'absolute', right: 0, bottom: '100%', background: 'white',
-                border: '1px solid rgba(0,0,0,0.08)', borderRadius: 10,
-                boxShadow: '0 4px 16px rgba(0,0,0,0.1)', zIndex: 50, padding: '4px 0', minWidth: 130
-              }}>
-                <button onClick={handleCardClick} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', border: 'none', background: 'none', cursor: 'pointer', fontFamily: "'Hind Siliguri', sans-serif", fontSize: 12, color: '#1C1B1A', textAlign: 'left' }}>
+              <div className="cl-card-menu-dropdown grid-pos">
+                <button onClick={handleCardClick} className="cl-dropdown-item">
                   <Eye size={12} color="#888780" /> বিস্তারিত
                 </button>
-                <button onClick={() => { onShare(caseItem); setShowMenu(false); }} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', border: 'none', background: 'none', cursor: 'pointer', fontFamily: "'Hind Siliguri', sans-serif", fontSize: 12, color: '#1C1B1A', textAlign: 'left' }}>
+                <button onClick={() => { onShare(caseItem); setShowMenu(false); }} className="cl-dropdown-item">
                   <Share2 size={12} color="#888780" /> শেয়ার
                 </button>
-                <button onClick={toggleStatus} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', border: 'none', background: 'none', cursor: 'pointer', fontFamily: "'Hind Siliguri', sans-serif", fontSize: 12, color: '#1C1B1A', textAlign: 'left' }}>
+                <button onClick={toggleStatus} className="cl-dropdown-item">
                   <RefreshCw size={12} color="#888780" /> স্ট্যাটাস
                 </button>
-                <button onClick={handleDelete} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', border: 'none', background: 'none', cursor: 'pointer', fontFamily: "'Hind Siliguri', sans-serif", fontSize: 12, color: '#E24B4A', textAlign: 'left' }}>
+                <button onClick={handleDelete} className="cl-dropdown-item danger">
                   <Trash2 size={12} color="#E24B4A" /> মুছুন
                 </button>
               </div>

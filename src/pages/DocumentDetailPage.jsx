@@ -73,7 +73,7 @@ export default function DocumentDetailPage() {
       // Update status to downloaded locally if it was generated
       if (doc.status === 'generated') {
         try {
-          await documentService.updateDocumentStatus(doc.id, 'downloaded');
+          await documentService.updateStatus(doc.id, 'downloaded');
         } catch (e) {
           console.error('Status update failed, but PDF was downloaded', e);
         }

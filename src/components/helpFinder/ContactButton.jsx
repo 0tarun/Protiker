@@ -15,13 +15,7 @@ export default function ContactButton({ contact }) {
       <a 
         href={`tel:${contact.value}`}
         onClick={(e) => e.stopPropagation()}
-        style={{
-          background: '#1D9E75', color: 'white', border: 'none',
-          borderRadius: 10, padding: '8px 16px', flex: 1,
-          display: 'flex', alignItems: 'center', gap: 6,
-          fontFamily: "'Hind Siliguri', sans-serif", fontSize: 13, 
-          fontWeight: 500, textDecoration: 'none', justifyContent: 'center'
-        }}
+        className="hf-phone-btn"
       >
         <Phone size={14} /> {text}
       </a>
@@ -35,13 +29,7 @@ export default function ContactButton({ contact }) {
         target="_blank"
         rel="noopener noreferrer"
         onClick={(e) => e.stopPropagation()}
-        style={{
-          background: '#25D366', color: 'white', border: 'none',
-          borderRadius: 10, padding: '8px 14px',
-          display: 'flex', alignItems: 'center', gap: 6,
-          fontFamily: "'Inter', sans-serif", fontSize: 12, 
-          fontWeight: 500, textDecoration: 'none'
-        }}
+        className="hf-whatsapp-btn"
       >
         <MessageCircle size={14} /> WhatsApp
       </a>

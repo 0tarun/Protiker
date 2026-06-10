@@ -50,6 +50,7 @@ export default function DocumentsPage() {
     submitted: 0
   });
   const [loading, setLoading] = useState(true);
+  const [docToDelete, setDocToDelete] = useState(null);
 
   /* Click outside handler for dropdown menus */
   const handleClickOutside = useCallback((e) => {
@@ -72,7 +73,7 @@ export default function DocumentsPage() {
         if (res.data) setDocuments(res.data);
         if (res.stats) {
           setDocStats({
-            totalDocs: res.stats.total || 0,
+            totalDocs: res.stats.totalDocs || 0,
             downloaded: res.stats.downloaded || 0,
             drafts: res.stats.drafts || 0,
             submitted: res.stats.submitted || 0
@@ -111,21 +112,44 @@ export default function DocumentsPage() {
   const handleDownload = async (id, e) => {
     e?.stopPropagation();
     try {
-      const response = await documentService.downloadDocument(id);
-      const url = window.URL.createObjectURL(new Blob([response]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `protiker-document-${id}.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
+      // Fetch full document details
+      const detailRes = await documentService.getDocumentDetails(id);
+      if (!detailRes.success || !detailRes.data) {
+        throw new Error('Failed to load document details');
+      }
+      const doc = detailRes.data;
+
+      // Import html2pdf dynamically
+      const html2pdf = (await import('html2pdf.js')).default;
       
-      // Optionally refresh docs to update downloaded status
+      const element = document.createElement('div');
+      element.innerHTML = `<pre style="font-family: sans-serif; white-space: pre-wrap; font-size: 14px; padding: 40px; line-height: 1.6;">${doc.generatedContent}</pre>`;
+      
+      const opt = {
+        margin:       10,
+        filename:     `protiker-document-${doc.id}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      await html2pdf().set(opt).from(element).save();
+      
+      // Update status to downloaded locally if it was generated
+      if (doc.status === 'generated') {
+        try {
+          await documentService.updateStatus(doc.id, 'downloaded');
+        } catch (statusErr) {
+          console.error('Status update failed, but PDF was downloaded', statusErr);
+        }
+      }
+
+      // Refresh docs to update downloaded status
       const res = await documentService.getUserDocuments(activeFilter);
       if (res.data) setDocuments(res.data);
       if (res.stats) {
         setDocStats({
-          totalDocs: res.stats.total || 0,
+          totalDocs: res.stats.totalDocs || 0,
           downloaded: res.stats.downloaded || 0,
           drafts: res.stats.drafts || 0,
           submitted: res.stats.submitted || 0
@@ -133,6 +157,47 @@ export default function DocumentsPage() {
       }
     } catch (err) {
       console.error('Download failed', err);
+      alert('PDF ডাউনলোড করতে সমস্যা হয়েছে।');
+    }
+  };
+
+  const handleShare = (id, e) => {
+    e?.stopPropagation();
+    const shareUrl = `${window.location.origin}/documents/${id}`;
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      alert('শেয়ার লিংক ক্লিপবোর্ডে কপি করা হয়েছে!');
+    });
+    setOpenMenu(null);
+  };
+
+  const handleDelete = (id, e) => {
+    e?.stopPropagation();
+    setDocToDelete(id);
+    setOpenMenu(null);
+  };
+
+  const confirmDelete = async () => {
+    if (!docToDelete) return;
+    try {
+      await documentService.deleteDocument(docToDelete);
+      
+      // Refresh docs
+      const res = await documentService.getUserDocuments(activeFilter);
+      if (res.data) setDocuments(res.data);
+      if (res.stats) {
+        setDocStats({
+          totalDocs: res.stats.totalDocs || 0,
+          downloaded: res.stats.downloaded || 0,
+          drafts: res.stats.drafts || 0,
+          submitted: res.stats.submitted || 0
+        });
+      }
+    } catch (err) {
+      console.error('Delete failed', err);
+      const errMsg = err?.response?.data?.message || 'দলিলটি মুছতে সমস্যা হয়েছে।';
+      alert(errMsg);
+    } finally {
+      setDocToDelete(null);
     }
   };
 
@@ -261,10 +326,10 @@ export default function DocumentsPage() {
                             <Eye size={14} /> দেখুন
                           </button>
                         )}
-                        <button className="doc-card-dropdown-item">
+                        <button className="doc-card-dropdown-item" onClick={(e) => handleShare(doc.id, e)}>
                           <Share2 size={14} /> শেয়ার করুন
                         </button>
-                        <button className="doc-card-dropdown-item danger">
+                        <button className="doc-card-dropdown-item danger" onClick={(e) => handleDelete(doc.id, e)}>
                           <Trash2 size={14} /> মুছুন
                         </button>
                       </div>
@@ -321,6 +386,31 @@ export default function DocumentsPage() {
           )
         )}
       </main>
+
+      {/* Delete Confirmation Modal */}
+      {docToDelete && (
+        <div className="p-modal-overlay" onClick={() => setDocToDelete(null)}>
+          <div className="p-modal-box" onClick={(e) => e.stopPropagation()}>
+            <div className="p-modal-header">
+              <div className="p-modal-icon-wrap">
+                <Trash2 size={20} />
+              </div>
+              <div className="p-modal-title">দলিল মুছে ফেলার অনুমতি</div>
+            </div>
+            <div className="p-modal-body">
+              আপনি কি নিশ্চিত যে আপনি এই দলিলটি মুছে ফেলতে চান? এই অ্যাকশনটি পূর্বাবস্থায় ফিরিয়ে আনা যাবে না।
+            </div>
+            <div className="p-modal-actions">
+              <button className="p-modal-btn p-modal-btn-cancel" onClick={() => setDocToDelete(null)}>
+                বাতিল করুন
+              </button>
+              <button className="p-modal-btn p-modal-btn-danger" onClick={confirmDelete}>
+                মুছে ফেলুন
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
