@@ -4,6 +4,7 @@
  */
 import { useState, useEffect } from 'react';
 import { MessageCircle, FileText, FolderOpen, Calendar, Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { getUserStats } from '../../services/chatService';
 
 const toBengali = (n) => n.toString().replace(/\d/g, (d) => '০১২৩৪৫৬৭৮৯'[d]);
@@ -32,6 +33,7 @@ function CountUp({ target, delay }) {
 }
 
 export default function StatsRow() {
+  const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -52,10 +54,10 @@ export default function StatsRow() {
   }, []);
 
   const statItems = [
-    { icon: MessageCircle, bg: '#E1F5EE', color: '#1D9E75', value: stats?.totalSessions ?? 0, label: 'মোট কথোপকথন' },
-    { icon: FileText, bg: '#E6F1FB', color: '#378ADD', value: stats?.totalDocuments ?? 0, label: 'তৈরি দলিল' },
-    { icon: FolderOpen, bg: '#FAEEDA', color: '#EF9F27', value: stats?.savedCases ?? 0, label: 'সংরক্ষিত কেস' },
-    { icon: Calendar, bg: '#EAF3DE', color: '#639922', value: stats?.daysActive ?? 0, label: 'দিন ধরে সক্রিয়' },
+    { icon: MessageCircle, bg: '#E1F5EE', color: '#1D9E75', value: stats?.totalSessions ?? 0, label: 'মোট কথোপকথন', route: '/chat' },
+    { icon: FileText, bg: '#E6F1FB', color: '#378ADD', value: stats?.totalDocuments ?? 0, label: 'তৈরি দলিল', route: '/documents' },
+    { icon: FolderOpen, bg: '#FAEEDA', color: '#EF9F27', value: stats?.savedCases ?? 0, label: 'সংরক্ষিত কেস', route: '/case-log' },
+    { icon: Calendar, bg: '#EAF3DE', color: '#639922', value: stats?.daysActive ?? 0, label: 'দিন ধরে সক্রিয়', route: null },
   ];
 
   return (
@@ -68,7 +70,12 @@ export default function StatsRow() {
           </div>
         ) : (
           statItems.map((s, i) => (
-            <div className="db-stat-card" key={s.label}>
+            <div
+              className="db-stat-card"
+              key={s.label}
+              onClick={() => s.route && navigate(s.route)}
+              style={{ cursor: s.route ? 'pointer' : 'default' }}
+            >
               <div className="db-stat-icon" style={{ background: s.bg }}>
                 <s.icon size={20} color={s.color} />
               </div>

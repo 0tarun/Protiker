@@ -2,6 +2,13 @@ import api from './api';
 
 const libraryService = {
   /**
+   * Fetch combined home page data (categories + most-read + recent) in one call
+   */
+  getHomePageData: async (mostReadLimit = 3, recentLimit = 5) => {
+    return api.get(`/library/home?mostReadLimit=${mostReadLimit}&recentLimit=${recentLimit}`);
+  },
+
+  /**
    * Fetch all active legal categories
    */
   getCategories: async () => {

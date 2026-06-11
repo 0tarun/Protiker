@@ -36,14 +36,11 @@ export default function LibraryHomePage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [catsRes, mostReadRes, recentRes] = await Promise.all([
-          libraryService.getCategories(),
-          libraryService.getMostReadArticles(3),
-          libraryService.getRecentArticles(5)
-        ]);
-        setCategories(catsRes || []);
-        setMostRead(mostReadRes || []);
-        setRecent(recentRes || []);
+        // Single combined API call instead of 3 parallel ones
+        const homeData = await libraryService.getHomePageData(3, 5);
+        setCategories(homeData?.categories || []);
+        setMostRead(homeData?.mostRead || []);
+        setRecent(homeData?.recent || []);
       } catch (error) {
         console.error("Failed to load library data:", error);
       } finally {

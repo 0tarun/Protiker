@@ -7,11 +7,10 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, MessageCircle, FileText, MapPin,
-  BookOpen, FolderOpen, Settings, HelpCircle, LogOut, Phone,
+  BookOpen, FolderOpen, Settings, HelpCircle, LogOut, Phone, X, ShieldCheck, Mail
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { getUserStats } from '../../services/chatService';
-
 
 const mainNav = [
   { icon: LayoutDashboard, label: 'ড্যাশবোর্ড', path: '/dashboard' },
@@ -34,6 +33,24 @@ export default function Sidebar({ activeItem = 'ড্যাশবোর্ড' 
   const { user, logout } = useAuth();
   const [dbStats, setDbStats] = useState(null);
 
+  // Modal States
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showHelpModal, setShowHelpModal] = useState(false);
+
+  // Form Fields
+  const [profileName, setProfileName] = useState(user?.name || '');
+  const [profilePhone, setProfilePhone] = useState(user?.phone || '');
+  const [profileDivision, setProfileDivision] = useState(user?.division || '');
+  const [showSavedToast, setShowSavedToast] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setProfileName(user.name || '');
+      setProfilePhone(user.phone || '');
+      setProfileDivision(user.division || '');
+    }
+  }, [user]);
+
   useEffect(() => {
     async function loadStats() {
       try {
@@ -50,6 +67,13 @@ export default function Sidebar({ activeItem = 'ড্যাশবোর্ড' 
     }
   }, [user]);
 
+  // Listen for global open profile events
+  useEffect(() => {
+    const handleOpenProfile = () => setShowProfileModal(true);
+    window.addEventListener('protiker:open-profile', handleOpenProfile);
+    return () => window.removeEventListener('protiker:open-profile', handleOpenProfile);
+  }, []);
+
   const activeStats = dbStats || { totalSessions: 0, totalDocuments: 0, savedCases: 0 };
 
   const handleNavClick = (item) => {
@@ -57,9 +81,26 @@ export default function Sidebar({ activeItem = 'ড্যাশবোর্ড' 
       logout();
       return;
     }
+    if (item.label === 'প্রোফাইল সেটিংস') {
+      setShowProfileModal(true);
+      return;
+    }
+    if (item.label === 'সাহায্য ও সহায়তা') {
+      setShowHelpModal(true);
+      return;
+    }
     if (item.path) {
       navigate(item.path);
     }
+  };
+
+  const handleSaveProfile = (e) => {
+    e.preventDefault();
+    setShowSavedToast(true);
+    setTimeout(() => {
+      setShowSavedToast(false);
+      setShowProfileModal(false);
+    }, 1500);
   };
 
   const userName = user?.name || 'ব্যবহারকারী';
@@ -67,7 +108,7 @@ export default function Sidebar({ activeItem = 'ড্যাশবোর্ড' 
   return (
     <aside className="db-sidebar">
       {/* Zone A — Brand */}
-      <div className="db-brand">
+      <div className="db-brand" onClick={() => navigate('/dashboard')} style={{ cursor: 'pointer' }}>
         <div className="db-brand-row">
           <div className="db-brand-badge">প্র</div>
           <div>
@@ -89,17 +130,17 @@ export default function Sidebar({ activeItem = 'ড্যাশবোর্ড' 
             </div>
           </div>
           <div className="db-user-stats">
-            <div className="db-user-stat">
+            <div className="db-user-stat" style={{ cursor: 'pointer' }} onClick={() => navigate('/chat')}>
               <div className="db-user-stat-val">{activeStats.totalSessions}</div>
               <div className="db-user-stat-label">কথোপকথন</div>
             </div>
             <div className="db-user-stat-div" />
-            <div className="db-user-stat">
+            <div className="db-user-stat" style={{ cursor: 'pointer' }} onClick={() => navigate('/documents')}>
               <div className="db-user-stat-val">{activeStats.totalDocuments}</div>
               <div className="db-user-stat-label">দলিল</div>
             </div>
             <div className="db-user-stat-div" />
-            <div className="db-user-stat">
+            <div className="db-user-stat" style={{ cursor: 'pointer' }} onClick={() => navigate('/case-log')}>
               <div className="db-user-stat-val">{activeStats.savedCases}</div>
               <div className="db-user-stat-label">কেস লগ</div>
             </div>
@@ -111,8 +152,7 @@ export default function Sidebar({ activeItem = 'ড্যাশবোর্ড' 
       <div className="db-nav-section">
         <div className="db-nav-label">প্রধান মেনু · Menu</div>
         <div className="db-nav-list">
-        {mainNav.map((item) => {
-            // Library is active on all /library/* routes
+          {mainNav.map((item) => {
             const isLibrary = item.label === 'অধিকার লাইব্রেরি';
             const isActive = isLibrary
               ? location.pathname.startsWith('/library')
@@ -141,7 +181,7 @@ export default function Sidebar({ activeItem = 'ড্যাশবোর্ড' 
               key={item.label}
               className={`db-nav-item${item.isLogout ? ' logout' : ''}`}
               onClick={() => handleNavClick(item)}
-              style={{ cursor: (item.path || item.isLogout) ? 'pointer' : 'default' }}
+              style={{ cursor: 'pointer' }}
             >
               <item.icon size={18} />
               {item.label}
@@ -156,12 +196,128 @@ export default function Sidebar({ activeItem = 'ড্যাশবোর্ড' 
           <div className="db-helpline-label">বিনামূল্যে হেল্পলাইন</div>
           <div className="db-helpline-number">16699</div>
           <div className="db-helpline-sub">NLASO · সার্বক্ষণিক</div>
-          <button className="db-helpline-btn">
+          <a
+            href="tel:16699"
+            className="db-helpline-btn"
+            style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+          >
             <Phone size={13} />
             এখনই কল করুন
-          </button>
+          </a>
         </div>
       </div>
+
+      {/* Profile Settings Modal */}
+      {showProfileModal && (
+        <div className="db-modal-overlay" onClick={() => setShowProfileModal(false)}>
+          <div className="db-modal-container" onClick={(e) => e.stopPropagation()}>
+            <div className="db-modal-header">
+              <span className="db-modal-title">প্রোফাইল সেটিংস · Profile Settings</span>
+              <button className="db-modal-close" onClick={() => setShowProfileModal(false)}>
+                <X size={18} />
+              </button>
+            </div>
+            <form onSubmit={handleSaveProfile} className="db-modal-body">
+              {showSavedToast && (
+                <div className="db-modal-toast">
+                  <ShieldCheck size={16} /> প্রোফাইল সফলভাবে সংরক্ষণ করা হয়েছে!
+                </div>
+              )}
+              <div className="db-modal-field">
+                <label>সম্পূর্ণ নাম / Full Name</label>
+                <input
+                  type="text"
+                  value={profileName}
+                  onChange={(e) => setProfileName(e.target.value)}
+                  placeholder="আপনার নাম লিখুন"
+                />
+              </div>
+              <div className="db-modal-field">
+                <label>ইমেইল ঠিকানা / Email (পরিবর্তনযোগ্য নয়)</label>
+                <input
+                  type="email"
+                  value={user?.email || ''}
+                  disabled
+                />
+              </div>
+              <div className="db-modal-field">
+                <label>ফোন নম্বর / Phone Number</label>
+                <input
+                  type="text"
+                  value={profilePhone}
+                  onChange={(e) => setProfilePhone(e.target.value)}
+                  placeholder="আপনার ফোন নম্বর"
+                />
+              </div>
+              <div className="db-modal-field">
+                <label>বিভাগ / Division</label>
+                <select
+                  value={profileDivision}
+                  onChange={(e) => setProfileDivision(e.target.value)}
+                >
+                  <option value="">নির্বাচন করুন</option>
+                  <option value="Dhaka">ঢাকা (Dhaka)</option>
+                  <option value="Chattogram">চট্টগ্রাম (Chattogram)</option>
+                  <option value="Rajshahi">রাজশাহী (Rajshahi)</option>
+                  <option value="Khulna">খুলনা (Khulna)</option>
+                  <option value="Barishal">বরিশাল (Barishal)</option>
+                  <option value="Sylhet">সিলেট (Sylhet)</option>
+                  <option value="Rangpur">রংপুর (Rangpur)</option>
+                  <option value="Mymensingh">ময়মনসিংহ (Mymensingh)</option>
+                </select>
+              </div>
+              <button type="submit" className="db-helpline-btn" style={{ background: 'var(--db-primary)', color: '#fff', border: 'none', margin: '20px 0 0', width: '100%' }}>
+                সংরক্ষণ করুন
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Help & Support Modal */}
+      {showHelpModal && (
+        <div className="db-modal-overlay" onClick={() => setShowHelpModal(false)}>
+          <div className="db-modal-container" onClick={(e) => e.stopPropagation()}>
+            <div className="db-modal-header">
+              <span className="db-modal-title">সাহায্য ও সহায়তা · Help & Support</span>
+              <button className="db-modal-close" onClick={() => setShowHelpModal(false)}>
+                <X size={18} />
+              </button>
+            </div>
+            <div className="db-modal-body">
+              <div className="db-faq-list">
+                <div className="db-faq-item">
+                  <div className="db-faq-q">১. কীভাবে Proti-র সাথে কথা বলব?</div>
+                  <div className="db-faq-a">
+                    ড্যাশবোর্ডের "AI আইনি পরামর্শ" কার্ডে ক্লিক করুন অথবা প্রধান মেনুর "AI পরামর্শ" ট্যাবে যান।
+                  </div>
+                </div>
+                <div className="db-faq-item">
+                  <div className="db-faq-q">২. দলিল কীভাবে তৈরি করব?</div>
+                  <div className="db-faq-a">
+                    "দলিল তৈরি করুন" কার্ডে ক্লিক করে আপনার প্রয়োজন অনুযায়ী টেমপ্লেট নির্বাচন করে সহজ ফর্মটি পূরণ করুন।
+                  </div>
+                </div>
+                <div className="db-faq-item">
+                  <div className="db-faq-q">৩. সেবাটি কি সম্পূর্ণ বিনামূল্যে?</div>
+                  <div className="db-faq-a">
+                    হ্যাঁ, প্রতিকার প্ল্যাটফর্মের সকল আইনি সহায়তা এবং তথ্য সম্পূর্ণ বিনামূল্যে প্রদান করা হয়।
+                  </div>
+                </div>
+              </div>
+              <div className="db-support-footer">
+                <strong>যোগাযোগের তথ্য:</strong>
+                <div className="db-support-row">
+                  <Phone size={14} style={{ flexShrink: 0 }} /> सरकारी আইনি সেবা হেল্পライン: 16699
+                </div>
+                <div className="db-support-row">
+                  <Mail size={14} style={{ flexShrink: 0 }} /> ইমেইল: support@protiker.gov.bd
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </aside>
   );
 }

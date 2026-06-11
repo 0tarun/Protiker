@@ -15,7 +15,7 @@ export default function RelatedArticles({ relatedSlugs, category }) {
       try {
         if (!relatedSlugs || relatedSlugs.length === 0) return;
         const res = await libraryService.getArticlesByCategory(category.slug);
-        const allInCategory = res.data;
+        const allInCategory = res;
         const matched = relatedSlugs
           .map((slug) => allInCategory.find((a) => a.slug === slug))
           .filter(Boolean);
