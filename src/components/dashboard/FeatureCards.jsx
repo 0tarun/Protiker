@@ -24,7 +24,7 @@ const features = [
     desc: 'আপনার সমস্যা অনুযায়ী অভিযোগপত্র বা আইনি নোটিশ তৈরি করুন।',
     action: 'দলিল তৈরি শুরু করুন',
     badge: null,
-    route: null,
+    route: '/documents/new',
   },
   {
     accent: '#EF9F27',

@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { getUserStats } from '../../services/chatService';
-import { mockStats } from '../../data/mockDashboard';
+
 
 const mainNav = [
   { icon: LayoutDashboard, label: 'ড্যাশবোর্ড', path: '/dashboard' },
@@ -50,7 +50,7 @@ export default function Sidebar({ activeItem = 'ড্যাশবোর্ড' 
     }
   }, [user]);
 
-  const activeStats = dbStats || mockStats;
+  const activeStats = dbStats || { totalSessions: 0, totalDocuments: 0, savedCases: 0 };
 
   const handleNavClick = (item) => {
     if (item.isLogout) {
