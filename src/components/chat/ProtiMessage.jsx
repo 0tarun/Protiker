@@ -162,7 +162,7 @@ export default function ProtiMessage({ message }) {
 
   return (
     <div className="proti-msg">
-      <div className="proti-avatar-sm">প্র</div>
+      <div className="proti-avatar-sm">প্রতি</div>
       <div className="proti-bubble">
         {message.structuredJson ? (
           <StructuredResponse

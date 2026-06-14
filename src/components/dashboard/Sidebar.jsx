@@ -110,7 +110,7 @@ export default function Sidebar({ activeItem = 'ড্যাশবোর্ড' 
       {/* Zone A — Brand */}
       <div className="db-brand" onClick={() => navigate('/dashboard')} style={{ cursor: 'pointer' }}>
         <div className="db-brand-row">
-          <div className="db-brand-badge">প্র</div>
+          <div className="db-brand-badge">প্রতি</div>
           <div>
             <div className="db-brand-name">Protiker</div>
             <div className="db-brand-sub">প্রতিকার</div>

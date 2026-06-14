@@ -18,9 +18,9 @@ export default function ProtiAvatarZone() {
     <div className="avatar-zone">
       <div className="avatar-wrap">
         <div className="avatar-ring" />
-        <div className="avatar-circle">প্র</div>
+        <div className="avatar-circle">প্রতি</div>
       </div>
-      <div className="avatar-name">Proti</div>
+      {/* <div className="avatar-name">Proti</div> */}
       <div className="avatar-subtitle">{state.language === 'en' ? 'Your Legal Friend' : 'আপনার আইনি বন্ধু'}</div>
       <div className="status-row">
         <div className="status-dot" />
@@ -34,7 +34,9 @@ export default function ProtiAvatarZone() {
               {severityLabel[severity]}
             </span>
           )}
-          <span className="msg-count">{msgCount} messages</span>
+          <span className="msg-count">
+            {msgCount} {state.language === 'en' ? 'messages' : 'বার্তা'}
+          </span>
         </div>
       )}
     </div>

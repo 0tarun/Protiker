@@ -21,7 +21,7 @@ export default function HomeState() {
 
   return (
     <div className="home-state">
-      <div className="home-avatar">প্র</div>
+      {/* <div className="home-avatar">প্রতি</div> */}
       <h1 className="home-heading">{lang === 'en' ? 'Describe your legal issue' : 'আপনার আইনি সমস্যা বলুন'}</h1>
       <p className="home-sub">
         {lang === 'en' 

@@ -6,7 +6,7 @@ export default function AuthLeftPanel() {
     <div className="auth-left-panel">
       {/* ── ZONE A: BRAND ── */}
       <div className="auth-brand">
-        <div className="auth-brand-badge">প্র</div>
+        <div className="auth-brand-badge">প্রতি</div>
         <div className="auth-brand-text">
           <div className="auth-wordmark">Protiker</div>
           <div className="auth-brand-sub">প্রতিকার · Legal Aid Platform</div>
@@ -17,7 +17,7 @@ export default function AuthLeftPanel() {
       <div className="auth-avatar-zone">
         <div className="auth-avatar-container">
           <div className="auth-avatar-ring" />
-          <div className="auth-avatar-inner">প্র</div>
+          <div className="auth-avatar-inner">প্রতি</div>
         </div>
         <div className="auth-avatar-info">
           <div className="auth-avatar-name">Proti</div>

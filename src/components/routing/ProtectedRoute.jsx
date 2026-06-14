@@ -54,7 +54,7 @@ const ProtikerLoadingScreen = () => (
       fontWeight     : 600,
       color          : '#0F6E56'
     }}>
-      প্র
+      প্রতি
     </div>
 
     <div style={{
