@@ -49,7 +49,7 @@ export default function TopBar() {
         <div className="db-greeting-text">
           {getGreeting()}, {firstName}! 👋
         </div>
-        <div className="db-greeting-sub">আজ কোনো আইনি समस्या আছে?</div>
+        <div className="db-greeting-sub">আজ কোনো আইনি সমস্যা আছে?</div>
       </div>
 
       <div className="db-topbar-right">

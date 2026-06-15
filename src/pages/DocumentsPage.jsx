@@ -121,20 +121,20 @@ export default function DocumentsPage() {
 
       // Import html2pdf dynamically
       const html2pdf = (await import('html2pdf.js')).default;
-      
+
       const element = document.createElement('div');
       element.innerHTML = `<pre style="font-family: sans-serif; white-space: pre-wrap; font-size: 14px; padding: 40px; line-height: 1.6;">${doc.generatedContent}</pre>`;
-      
+
       const opt = {
-        margin:       10,
-        filename:     `protiker-document-${doc.id}.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2 },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        margin: 10,
+        filename: `protiker-document-${doc.id}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
       await html2pdf().set(opt).from(element).save();
-      
+
       // Update status to downloaded locally if it was generated
       if (doc.status === 'generated') {
         try {
@@ -180,7 +180,7 @@ export default function DocumentsPage() {
     if (!docToDelete) return;
     try {
       await documentService.deleteDocument(docToDelete);
-      
+
       // Refresh docs
       const res = await documentService.getUserDocuments(activeFilter);
       if (res.data) setDocuments(res.data);

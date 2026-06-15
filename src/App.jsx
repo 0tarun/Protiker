@@ -56,149 +56,149 @@ export default function App() {
           <CaseLogProvider>
             <GlobalErrorToast />
             <Routes>
-          {/* ── ROOT → CHAT ── */}
-          <Route path="/" element={<Navigate to="/chat" replace />} />
+              {/* ── ROOT → CHAT ── */}
+              <Route path="/" element={<Navigate to="/chat" replace />} />
 
-          {/* ── PUBLIC: accessible by anyone ── */}
-          <Route path="/chat/*" element={<ChatApp />} />
+              {/* ── PUBLIC: accessible by anyone ── */}
+              <Route path="/chat/*" element={<ChatApp />} />
 
-          {/* ── AUTH: only for non-authenticated ── */}
-          <Route
-            path="/login"
-            element={
-              <PublicRoute>
-                <LoginPage />
-              </PublicRoute>
-            }
-          />
-          <Route
-            path="/signup"
-            element={
-              <PublicRoute>
-                <SignupPage />
-              </PublicRoute>
-            }
-          />
+              {/* ── AUTH: only for non-authenticated ── */}
+              <Route
+                path="/login"
+                element={
+                  <PublicRoute>
+                    <LoginPage />
+                  </PublicRoute>
+                }
+              />
+              <Route
+                path="/signup"
+                element={
+                  <PublicRoute>
+                    <SignupPage />
+                  </PublicRoute>
+                }
+              />
 
-          {/* ── PROTECTED: require JWT ── */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <DashboardPage />
-              </ProtectedRoute>
-            }
-          />
+              {/* ── PROTECTED: require JWT ── */}
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <DashboardPage />
+                  </ProtectedRoute>
+                }
+              />
 
-          {/* Feature 2 — Smart Document Automator */}
-          <Route
-            path="/documents"
-            element={
-              <ProtectedRoute>
-                <DocumentsPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/documents/new"
-            element={
-              <ProtectedRoute>
-                <NewDocumentPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/documents/create/:templateSlug"
-            element={
-              <ProtectedRoute>
-                <DocumentFormPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/documents/edit/:id"
-            element={
-              <ProtectedRoute>
-                <DocumentFormPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/documents/:id"
-            element={
-              <ProtectedRoute>
-                <DocumentDetailPage />
-              </ProtectedRoute>
-            }
-          />
+              {/* Feature 2 — Smart Document Automator */}
+              <Route
+                path="/documents"
+                element={
+                  <ProtectedRoute>
+                    <DocumentsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/documents/new"
+                element={
+                  <ProtectedRoute>
+                    <NewDocumentPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/documents/create/:templateSlug"
+                element={
+                  <ProtectedRoute>
+                    <DocumentFormPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/documents/edit/:id"
+                element={
+                  <ProtectedRoute>
+                    <DocumentFormPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/documents/:id"
+                element={
+                  <ProtectedRoute>
+                    <DocumentDetailPage />
+                  </ProtectedRoute>
+                }
+              />
 
-          {/* Feature 3 — Legal Help Finder */}
-          <Route
-            path="/help-finder"
-            element={
-              <ProtectedRoute>
-                <HelpFinderPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/help-finder/:centerId"
-            element={
-              <ProtectedRoute>
-                <CenterDetailPage />
-              </ProtectedRoute>
-            }
-          />
-          {/* Feature 4 — Case Log */}
-          <Route
-            path="/case-log"
-            element={
-              <ProtectedRoute>
-                <CaseLogPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/case-log/new"
-            element={
-              <ProtectedRoute>
-                <NewCasePage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/case-log/:caseId"
-            element={
-              <ProtectedRoute>
-                <CaseDetailPage />
-              </ProtectedRoute>
-            }
-          />
+              {/* Feature 3 — Legal Help Finder */}
+              <Route
+                path="/help-finder"
+                element={
+                  <ProtectedRoute>
+                    <HelpFinderPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/help-finder/:centerId"
+                element={
+                  <ProtectedRoute>
+                    <CenterDetailPage />
+                  </ProtectedRoute>
+                }
+              />
+              {/* Feature 4 — Case Log */}
+              <Route
+                path="/case-log"
+                element={
+                  <ProtectedRoute>
+                    <CaseLogPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/case-log/new"
+                element={
+                  <ProtectedRoute>
+                    <NewCasePage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/case-log/:caseId"
+                element={
+                  <ProtectedRoute>
+                    <CaseDetailPage />
+                  </ProtectedRoute>
+                }
+              />
 
-          {/* Feature 5 — Rights Library */}
-          <Route path="/library" element={<LibraryHomePage />} />
-          <Route
-            path="/library/submit"
-            element={
-              <ProtectedRoute>
-                <LibrarySubmitPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/library/moderation"
-            element={
-              <ProtectedRoute>
-                <LibraryModerationPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/library/:categorySlug" element={<CategoryPage />} />
-          <Route path="/library/:categorySlug/:articleSlug" element={<ArticlePage />} />
+              {/* Feature 5 — Rights Library */}
+              <Route path="/library" element={<LibraryHomePage />} />
+              <Route
+                path="/library/submit"
+                element={
+                  <ProtectedRoute>
+                    <LibrarySubmitPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/library/moderation"
+                element={
+                  <ProtectedRoute>
+                    <LibraryModerationPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/library/:categorySlug" element={<CategoryPage />} />
+              <Route path="/library/:categorySlug/:articleSlug" element={<ArticlePage />} />
 
-          {/* ── 404 FALLBACK ── */}
-          <Route path="*" element={<Navigate to="/chat" replace />} />
-        </Routes>
+              {/* ── 404 FALLBACK ── */}
+              <Route path="*" element={<Navigate to="/chat" replace />} />
+            </Routes>
           </CaseLogProvider>
         </AuthProvider>
       </BrowserRouter>
